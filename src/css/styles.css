@@ -135,6 +135,71 @@ label.field { display: block; margin-top: var(--space-component); font-size: 14p
   .choice-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; }
   .choice-grid.three-up { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+.camera-entropy {
+  position: relative; overflow: hidden; border: 1px solid var(--border); border-radius: 16px;
+  padding: clamp(14px, 3vw, 22px); background:
+    radial-gradient(circle at 82% 0%, color-mix(in oklab, var(--selection-accent) 12%, transparent), transparent 34%),
+    var(--bg);
+}
+.camera-entropy-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.camera-entropy-head h3 { margin: 5px 0 0; font-size: clamp(1.35rem, 3vw, 1.75rem); }
+.camera-private-badge {
+  flex: 0 0 auto; display: inline-flex; align-items: center; min-height: 28px; padding: 4px 9px;
+  border: 1px solid color-mix(in oklab, var(--ok) 55%, var(--border)); border-radius: 999px;
+  background: color-mix(in oklab, var(--ok) 10%, var(--surface)); color: var(--ok);
+  font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+}
+.camera-stage {
+  position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 16 / 9;
+  margin-top: var(--space-component); overflow: hidden; border: 1px solid var(--border); border-radius: 14px;
+  background: #070806;
+}
+.camera-stage::after {
+  content: ""; position: absolute; inset: 12px; z-index: 2; pointer-events: none;
+  border: 1px solid rgb(255 255 255 / 14%); border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 28%);
+}
+.camera-stage video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.camera-placeholder { display: grid; justify-items: center; gap: 7px; padding: 20px; color: var(--muted); text-align: center; }
+.camera-placeholder span {
+  display: grid; place-items: center; width: 54px; height: 54px; border: 1px solid var(--border); border-radius: 50%;
+  background: color-mix(in oklab, var(--selection-accent) 12%, var(--surface)); color: var(--selection-accent); font-size: 28px;
+  box-shadow: 0 0 36px color-mix(in oklab, var(--selection-accent) 16%, transparent);
+}
+.camera-placeholder strong { color: var(--fg); font-size: 14px; }
+.camera-placeholder small { max-width: 330px; line-height: 1.45; }
+.camera-scanline {
+  position: absolute; z-index: 3; left: 12px; right: 12px; top: 12px; height: 1px; opacity: 0;
+  background: color-mix(in oklab, var(--selection-accent) 82%, white); box-shadow: 0 0 12px var(--selection-accent); pointer-events: none;
+}
+.camera-stage.is-live .camera-scanline { opacity: .6; animation: camera-scan 2.8s ease-in-out infinite; }
+@keyframes camera-scan { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(56.25vw - 50px)); } }
+.camera-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: var(--space-component); }
+.camera-actions .btn { flex: 1 1 190px; }
+.camera-progress { height: 8px; margin-top: 12px; overflow: hidden; border-radius: 999px; background: var(--surface-2); }
+.camera-progress span { display: block; width: 0; height: 100%; border-radius: inherit; background: var(--selection-accent); transition: width 80ms linear; }
+.camera-status { min-height: 21px; margin: 9px 0 0; }
+.camera-status.ok { color: var(--ok); }
+.camera-status.err { color: var(--danger); }
+.camera-caution {
+  margin: var(--space-component) 0 0; padding: 11px 12px; border-left: 3px solid var(--warn);
+  background: color-mix(in oklab, var(--warn) 8%, transparent); color: var(--muted); font-size: 12px; line-height: 1.5;
+}
+.camera-caution strong { color: var(--warn); }
+.camera-entropy-result {
+  display: flex; align-items: flex-start; gap: 11px; margin-bottom: var(--space-component); padding: 12px 14px;
+  border: 1px solid color-mix(in oklab, var(--ok) 48%, var(--border)); border-radius: 12px;
+  background: color-mix(in oklab, var(--ok) 9%, var(--surface)); color: var(--ok);
+}
+.camera-entropy-result > span { font-size: 18px; line-height: 1.1; }
+.camera-entropy-result strong { font-size: 14px; }
+.camera-entropy-result p { margin: 3px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+@media (prefers-reduced-motion: reduce) { .camera-stage.is-live .camera-scanline { animation: none; top: 50%; } }
+@media (max-width: 520px) {
+  .camera-entropy-head { align-items: center; }
+  .camera-stage { aspect-ratio: 4 / 3; }
+  .camera-actions .btn { flex-basis: 100%; }
+}
 .dice-input-pad { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: var(--space-control); }
 .dice-input-pad.with-coin { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 3fr); }
 .dice-input-pad.dplus {

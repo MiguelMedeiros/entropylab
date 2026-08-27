@@ -13,9 +13,9 @@ var vr=[16,20,24,28,32],Rc={0:"00",1:"01",2:"10",3:"11",4:"0",5:"1"};function kr
     </aside>
     <header>
       <div>
-        <div class="kicker">EntropyLab v{{VERSION}} \xB7 Run Offline \xB7 No entropy RNG \xB7 Bring your own entropy</div>
+        <div class="kicker">EntropyLab v{{VERSION}} \xB7 Run Offline \xB7 Physical entropy \xB7 You stay in control</div>
         <div class="header-title-row"><img class="online-brand-mark" id="online-brand-mark" data-online-src="assets/entropylab_dark.png" alt="" aria-hidden="true" hidden><h1>EntropyLab — Air-Gapped Bitcoin Calculator</h1></div>
-        <p class="muted">This file never generates wallet entropy. Save it to USB and open it on a computer that never goes online.</p>
+        <p class="muted">Bring your own physical entropy with dice, coins, or light and motion from a webcam. Save this file to USB and use it on a computer that never goes online.</p>
         <div class="download-controls no-print">
           <label class="version-picker">Version
             <select class="version-select" aria-label="EntropyLab version"><option value="entropylab-{{VERSION}}.html" selected>v{{VERSION}} (Latest)</option></select>
@@ -28,7 +28,7 @@ var vr=[16,20,24,28,32],Rc={0:"00",1:"01",2:"10",3:"11",4:"0",5:"1"};function kr
     <section class="card">
       <div class="kicker">Hold first. Sign later.</div>
       <h2>You do not need a signing device to hold or receive bitcoin.</h2>
-      <p class="muted">A signing device is only required when you spend. Turn dice rolls or a seed you already have into receive addresses, load the xpub into Bitcoin Core or any watch-only wallet, and get paid. Keep the seed on this air-gapped machine. Carry only addresses and the xpub online.</p>
+      <p class="muted">A signing device is only required when you spend. Turn dice rolls, webcam motion, or a seed you already have into receive addresses, load the xpub into Bitcoin Core or any watch-only wallet, and get paid. Keep the seed on this air-gapped machine. Carry only addresses and the xpub online.</p>
     </section>
     <div class="row no-print segmented-control" id="workspace" role="group" aria-label="Workspace"></div>
     <section class="key-manager no-print" id="key-manager">
@@ -196,7 +196,7 @@ var vr=[16,20,24,28,32],Rc={0:"00",1:"01",2:"10",3:"11",4:"0",5:"1"};function kr
       <p>D++ D8 &amp; D16 method: <a href="https://thesimplestbitcoinbook.net/wp-content/uploads/2023/09/Roll-Your-Own-Seed-Phrase-PDF.pdf">Roll Your Own Bitcoin Seed Phrase</a> \u2014 the published 24-word workflow uses one D8 and two D16 rolls per word, then a final D8.</p>
     </section>
   </div>
-`;if(/^(www\.)?entropylab\.online$/i.test(location.hostname))document.getElementById("online-warning")?.removeAttribute("hidden");var Ne="dice",ge="coldcard",Pt=24,hodlEntropyFormat="hex",hodlDiceCoinPositions=[],hodlDPlusNumberedD16=!1,ft="",re=null,Ge=!1,Zs=W("#modes"),at=W("#form"),dr=W("#out");["dice","hex","seed","key"].forEach(e=>{let t=document.createElement("button"),active=e===Ne;t.type="button";t.className="tab"+(active?" active":"");t.setAttribute("aria-pressed",String(active));t.textContent=e==="dice"?"Dice rolls":e==="hex"?"Hex or binary":e==="seed"?"Seed phrase":"Private key";t.onclick=()=>hodlSetMode(e);Zs.appendChild(t)});document.querySelectorAll("#seed-length [data-seed-words]").forEach(button=>{button.onclick=()=>hodlSetSeedLength(Number(button.dataset.seedWords))});W("#go").onclick=hodlCalculateKey;W("#wipe").onclick=hodlWipeActiveKey;function W(e){let t=e.startsWith("#")?e.slice(1):e,r=document.getElementById(t);if(!r)throw new Error(t);return r}function lr(){if(Ne==="dice"){at.innerHTML=`
+`;if(/^(www\.)?entropylab\.online$/i.test(location.hostname))document.getElementById("online-warning")?.removeAttribute("hidden");var Ne="dice",ge="coldcard",Pt=24,hodlEntropyFormat="hex",hodlDiceCoinPositions=[],hodlDPlusNumberedD16=!1,ft="",re=null,Ge=!1,hodlCameraStream=null,hodlCameraCaptureRevision=0,hodlCameraEntropyNotice="",hodlCameraEntropyNoticeKeyId=null,Zs=W("#modes"),at=W("#form"),dr=W("#out");["dice","camera","hex","seed","key"].forEach(e=>{let t=document.createElement("button"),active=e===Ne;t.type="button";t.className="tab"+(active?" active":"");t.setAttribute("aria-pressed",String(active));t.textContent=e==="dice"?"Dice rolls":e==="camera"?"Webcam":e==="hex"?"Hex or binary":e==="seed"?"Seed phrase":"Private key";t.onclick=()=>hodlSetMode(e);Zs.appendChild(t)});document.querySelectorAll("#seed-length [data-seed-words]").forEach(button=>{button.onclick=()=>hodlSetSeedLength(Number(button.dataset.seedWords))});W("#go").onclick=hodlCalculateKey;W("#wipe").onclick=hodlWipeActiveKey;function W(e){let t=e.startsWith("#")?e.slice(1):e,r=document.getElementById(t);if(!r)throw new Error(t);return r}function lr(){if(Ne==="dice"){at.innerHTML=`
       <p class="label">How to turn rolls into a seed</p>
       <label class="choice"><input type="radio" name="dm" value="coldcard" ${ge==="coldcard"?"checked":""} />
         <span><strong>Hashed rolls / Base 10 [0-9] (recommended)</strong>
@@ -597,7 +597,7 @@ function hodlSheetWifRows(lines,label,rows){
   for(let row of privateRows)lines.push(`  ${row.index}  ${hodlDisplayDerivationPath(row.path)}  ${row.wif}`)
 }
 Oo=function(wallet,revealPrivate){
-  let lines=["ENTROPYLAB \u2014 RECOVERY SHEET","This file was computed locally. The calculator never generated wallet entropy.",""];
+  let lines=["ENTROPYLAB \u2014 RECOVERY SHEET","This file was computed locally. Entropy came from the physical input or recovery material selected in EntropyLab.",""];
   lines.push(`Network: ${wallet.network}`);if(wallet.passphraseUsed)lines.push("Passphrase: YES (not printed)");hodlSheetWarnings(lines,wallet);lines.push("");
   if(wallet.kind==="single"){
     if(revealPrivate){
@@ -1177,7 +1177,7 @@ function hodlUpdateSeedLengthControl(){
   let section=document.getElementById("seed-length");if(!section)return;let config=hodlSeedConfig();section.hidden=Ne==="key";
   section.querySelectorAll("[data-seed-words]").forEach(button=>{let active=Number(button.dataset.seedWords)===config.words;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
   let help=document.getElementById("seed-length-help");if(!help)return;
-  help.textContent=Ne==="hex"?(hodlEntropyFormat==="bin"?`${config.words} words require exactly ${config.bits} binary digits.`:`${config.words} words require exactly ${config.hexChars} hexadecimal characters.`):Ne==="seed"?`Enter exactly ${config.words} BIP39 words. Extended keys ignore this selection.`:`${config.words} words use ${config.bits} bits of BIP39 entropy.`
+  help.textContent=Ne==="camera"?`The webcam will collect ${config.bits} bits for a ${config.words}-word seed.`:Ne==="hex"?(hodlEntropyFormat==="bin"?`${config.words} words require exactly ${config.bits} binary digits.`:`${config.words} words require exactly ${config.hexChars} hexadecimal characters.`):Ne==="seed"?`Enter exactly ${config.words} BIP39 words. Extended keys ignore this selection.`:`${config.words} words use ${config.bits} bits of BIP39 entropy.`
 }
 function hodlInvalidateActiveKeyOutput(){
   re=null;Ge=!1;ft="";dr.innerHTML="";let error=document.getElementById("error");if(error)error.textContent="";
@@ -1185,9 +1185,57 @@ function hodlInvalidateActiveKeyOutput(){
 }
 function hodlSetSeedLength(words){
   let config=hodlSeedLengths[Number(words)];if(!config)return;if(Pt===config.words){hodlUpdateSeedLengthControl();hodlQueueMasterFingerprintPreview(0);return}
-  hodlCaptureKey();let state=hodlKeys[hodlActiveKey];Pt=config.words;hodlInvalidateActiveKeyOutput();
+  if(Ne==="camera")hodlStopCamera();hodlCaptureKey();let state=hodlKeys[hodlActiveKey];Pt=config.words;hodlInvalidateActiveKeyOutput();
   if(state){state.targetWords=config.words;state.diceMethod=ge;state.lastWord="";state.dplusLastWord="";state.result=null;state.reveal=!1;state.error=""}
   hodlRenderKeyForm();hodlRestoreFormFields(state);hodlUpdateSeedLengthControl();hodlQueueMasterFingerprintPreview(0)
+}
+function hodlStopCamera(){
+  hodlCameraCaptureRevision+=1;
+  if(hodlCameraStream){hodlCameraStream.getTracks().forEach(track=>track.stop());hodlCameraStream=null}
+  let video=document.getElementById("camera-preview");if(video){video.pause();video.srcObject=null}
+}
+function hodlCameraStatus(message,state=""){
+  let status=document.getElementById("camera-status");if(!status)return;status.textContent=message;status.className="camera-status muted"+(state?` ${state}`:"")
+}
+function hodlCameraErrorMessage(error){
+  if(error?.name==="NotAllowedError")return"Camera permission was denied. Allow access in the browser and try again.";
+  if(error?.name==="NotFoundError")return"No camera was found on this device.";
+  if(error?.name==="NotReadableError")return"The camera is already in use by another app.";
+  return error?.message||"The camera could not be started."
+}
+function hodlJoinCameraEntropy(...chunks){
+  let length=chunks.reduce((total,chunk)=>total+chunk.length,0),joined=new Uint8Array(length),offset=0;
+  chunks.forEach(chunk=>{joined.set(chunk,offset);offset+=chunk.length});return joined
+}
+async function hodlStartCamera(){
+  let start=document.getElementById("camera-start"),capture=document.getElementById("camera-capture"),video=document.getElementById("camera-preview"),placeholder=document.getElementById("camera-placeholder"),stage=document.getElementById("camera-stage");
+  if(!start||!capture||!video||!stage)return;
+  if(!navigator.mediaDevices?.getUserMedia){hodlCameraStatus("Camera access requires localhost, HTTPS, or a compatible offline browser.","err");return}
+  hodlStopCamera();start.disabled=!0;capture.disabled=!0;hodlCameraStatus("Waiting for camera permission…");
+  try{
+    let stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280},height:{ideal:720}},audio:!1});
+    if(Ne!=="camera"){stream.getTracks().forEach(track=>track.stop());return}
+    hodlCameraStream=stream;video.srcObject=stream;await video.play();video.hidden=!1;if(placeholder)placeholder.hidden=!0;stage.classList.remove("is-idle");stage.classList.add("is-live");
+    start.textContent="Restart camera";start.disabled=!1;capture.disabled=!1;capture.textContent=`Create ${hodlSeedConfig().bits} bits of entropy`;hodlCameraStatus("Camera ready. Move the camera or wave an object through changing light, then capture.","ok")
+  }catch(error){hodlStopCamera();start.disabled=!1;hodlCameraStatus(hodlCameraErrorMessage(error),"err")}
+}
+async function hodlCaptureCameraEntropy(){
+  let video=document.getElementById("camera-preview"),canvas=document.getElementById("camera-canvas"),capture=document.getElementById("camera-capture"),start=document.getElementById("camera-start"),progress=document.getElementById("camera-progress"),fill=document.getElementById("camera-progress-fill");
+  if(!video||!canvas||!capture||!hodlCameraStream||video.readyState<2){hodlCameraStatus("Start the camera before collecting entropy.","err");return}
+  let context=canvas.getContext("2d",{alpha:!1,willReadFrequently:!0});if(!context){hodlCameraStatus("This browser cannot read camera frames.","err");return}
+  let config=hodlSeedConfig(),frames=48,revision=++hodlCameraCaptureRevision,encoder=new TextEncoder(),pool=Z(encoder.encode(`EntropyLab webcam entropy v1|${video.videoWidth}x${video.videoHeight}|${performance.now()}|${Date.now()}`));
+  canvas.width=96;canvas.height=72;capture.disabled=!0;if(start)start.disabled=!0;if(progress){progress.hidden=!1;progress.setAttribute("aria-valuemax",String(frames));progress.setAttribute("aria-valuenow","0")}if(fill)fill.style.width="0%";
+  hodlCameraStatus("Collecting changing pixels… keep moving.");
+  try{
+    for(let index=0;index<frames;index++){
+      await new Promise(resolve=>setTimeout(resolve,55));if(revision!==hodlCameraCaptureRevision||Ne!=="camera"||!hodlCameraStream)return;
+      context.drawImage(video,0,0,canvas.width,canvas.height);let pixels=context.getImageData(0,0,canvas.width,canvas.height).data,timing=new Uint8Array(32),view=new DataView(timing.buffer);
+      view.setFloat64(0,performance.now());view.setFloat64(8,Date.now());view.setFloat64(16,video.currentTime);view.setUint32(24,index);view.setUint16(28,video.videoWidth);view.setUint16(30,video.videoHeight);
+      pool=Z(hodlJoinCameraEntropy(pool,pixels,timing));let done=index+1,percent=Math.round(done/frames*100);if(progress){progress.setAttribute("aria-valuenow",String(done));progress.setAttribute("aria-valuetext",`${percent}% collected`)}if(fill)fill.style.width=`${percent}%`;hodlCameraStatus(`Mixing frame ${done} of ${frames} · ${percent}%`)
+    }
+    let hex=M.encode(pool.slice(0,config.bytes)),state=hodlKeys[hodlActiveKey];if(state){state.fields.hex=hex;state.entropyFormat="hex";hodlCameraEntropyNoticeKeyId=state.id}hodlCameraEntropyNotice=`A ${config.bits}-bit value was created from 48 camera frames. Review the hexadecimal entropy below before deriving.`;
+    hodlStopCamera();hodlSetMode("hex")
+  }catch(error){hodlCameraStatus(error?.message||"Camera frames could not be mixed.","err");capture.disabled=!1;if(start)start.disabled=!1}
 }
 function hodlRenderKeyForm(){
   let config=hodlSeedConfig();hodlUpdateSeedLengthControl();
@@ -1239,9 +1287,28 @@ function hodlRenderKeyForm(){
     }});
     hodlBindKeyFields();return
   }
+  if(Ne==="camera"){
+    at.innerHTML=`
+      <section class="camera-entropy" aria-labelledby="camera-title">
+        <div class="camera-entropy-head"><div><p class="kicker">Physical entropy · stays on this device</p><h3 id="camera-title">Create entropy with your webcam</h3></div><span class="camera-private-badge">No upload</span></div>
+        <p class="muted">The camera image never leaves this page. EntropyLab mixes 48 small frames with their exact capture timing using SHA-256, then fills ${config.bits} bits for your ${config.words}-word seed.</p>
+        <div class="camera-stage is-idle" id="camera-stage">
+          <video id="camera-preview" autoplay muted playsinline hidden aria-label="Live camera preview"></video>
+          <div class="camera-placeholder" id="camera-placeholder"><span aria-hidden="true">◉</span><strong>Your camera preview</strong><small>Permission is requested only when you press Start camera.</small></div>
+          <div class="camera-scanline" aria-hidden="true"></div>
+        </div>
+        <canvas id="camera-canvas" hidden></canvas>
+        <div class="camera-actions"><button class="btn secondary" id="camera-start" type="button">Start camera</button><button class="btn primary" id="camera-capture" type="button" disabled>Create ${config.bits} bits of entropy</button></div>
+        <div class="camera-progress" id="camera-progress" role="progressbar" aria-label="Camera entropy collection progress" aria-valuemin="0" aria-valuemax="48" aria-valuenow="0" hidden><span id="camera-progress-fill"></span></div>
+        <p class="camera-status muted" id="camera-status" role="status" aria-live="polite">Start the camera, add movement and changing light, then capture.</p>
+        <p class="camera-caution"><strong>For testing:</strong> camera scenes can be predictable. For high-value wallets, combine independent physical methods and verify the workflow on a trusted air-gapped computer.</p>
+      </section>`;
+    document.getElementById("camera-start").onclick=hodlStartCamera;document.getElementById("camera-capture").onclick=hodlCaptureCameraEntropy;hodlBindKeyFields();return
+  }
   if(Ne==="hex"){
     let binary=hodlEntropyFormat==="bin",inputId=binary?"bin":"hex",entropyCharacters=binary?["0","1"]:[..."0123456789ABCDEF"],entropyPad=`<div class="dice-input-pad dplus entropy-keypad${binary?" binary-keypad":""}" role="group" aria-label="${binary?"Binary":"Hexadecimal"} keypad">${entropyCharacters.map(character=>`<button type="button"${binary?' class="coin-button"':""} data-entropy-digit="${character}" aria-label="${binary?character==="0"?"Enter Heads as binary 0":"Enter Tails as binary 1":`Enter hexadecimal ${character}`}">${binary?character==="0"?"Heads (0)":"Tails (1)":character}</button>`).join("")}</div>`;
     at.innerHTML=`
+      ${hodlCameraEntropyNotice&&hodlCameraEntropyNoticeKeyId===hodlKeys[hodlActiveKey]?.id?`<div class="camera-entropy-result" role="status"><span aria-hidden="true">✓</span><div><strong>Webcam entropy ready</strong><p>${hodlCameraEntropyNotice}</p></div></div>`:""}
       <p class="label">Entropy format</p>
       <div class="choice-grid">
       <label class="choice"><input type="radio" name="entropy-format" value="hex" ${binary?"":"checked"} />
@@ -1252,7 +1319,7 @@ function hodlRenderKeyForm(){
       </label>
       </div>
       <p class="label" id="entropy-input-label">${binary?`Binary entropy (coin flips) for a ${config.words}-word seed`:`Hexadecimal entropy for a ${config.words}-word seed`}</p>
-      <p class="muted" id="entropy-input-help">${binary?`Spaces are added every 11 bits. Each complete group fills one BIP39 word; the checksum-derived final word appears at ${config.bits} bits.`:`Each hex character contributes four bits. Seed-word cards fill as enough bits arrive; the checksum-derived final word appears at exactly ${config.hexChars} characters.`} No generator — enter entropy you already created.</p>
+      <p class="muted" id="entropy-input-help">${binary?`Spaces are added every 11 bits. Each complete group fills one BIP39 word; the checksum-derived final word appears at ${config.bits} bits.`:`Each hex character contributes four bits. Seed-word cards fill as enough bits arrive; the checksum-derived final word appears at exactly ${config.hexChars} characters.`} Enter entropy you created or collected.</p>
       <div class="dice-input-shell entropy-input-shell"><pre class="dice-input-highlight" id="entropy-input-highlight" aria-hidden="true"></pre><textarea id="${inputId}" placeholder="${binary?`Exactly ${config.bits} zeros and ones`:`${config.hexChars} hex characters for a ${config.words}-word seed`}" aria-labelledby="entropy-input-label" aria-describedby="entropy-input-help entropy-meta" autocomplete="off" spellcheck="false" autocapitalize="off"></textarea></div>
       ${entropyPad}
       <p class="muted" id="entropy-meta" aria-live="polite"></p>
@@ -1375,6 +1442,7 @@ function hodlCanDeriveCurrentKey(){
       return hodlDiceEntropy(input.value,ge,Pt).ok
     }
     if(Ne==="hex")return hodlSelectedEntropy().ok;
+    if(Ne==="camera")return!1;
     if(Ne==="seed"){
       let value=document.getElementById("seed")?.value.trim()||"";if(!value)return!1;
       if(hodlLooksExtendedKey(value))return hodlUsableSinglesigImport(value,hodlSelectedNetwork(document.getElementById("network")));
@@ -1481,6 +1549,8 @@ function hodlCalculateKey(){
       }else{let diceValue=document.getElementById("dice").value;if(hodlAnalyzeDiceInput(diceValue,ge,Pt).coinDerivedCount)throw new Error("Coin-button digits are entropy-equivalent only in BitBox mode. Clear them and enter fair die rolls for this conversion method.");let entropy=hodlDiceEntropy(diceValue,ge,Pt);if(!entropy.ok)throw new Error(entropy.error);re=on(entropy,passphrase,network,count,account)}
     }else if(Ne==="hex"){
       let entropy=hodlSelectedEntropy();if(!entropy.ok)throw new Error(entropy.error);re=on(entropy,passphrase,network,count,account)
+    }else if(Ne==="camera"){
+      throw new Error("Collect webcam entropy before deriving the wallet.")
     }else if(Ne==="seed"){
       let value=document.getElementById("seed").value.trim();if(hodlLooksExtendedKey(value))re=Po(value,network,count,account);else{let validation=hodlValidateTargetMnemonic(value,Pt);if(!validation.ok)throw new Error(validation.error);re=ar(validation.words.join(" "),passphrase,network,count,undefined,account)}
     }else{let kind=document.querySelector("input[name=kk]:checked")?.value||"wif-or-hex";re=Io(document.getElementById("key").value,network,kind)}
@@ -1963,9 +2033,9 @@ function hodlRestoreFormFields(state){
   ["dice","hex","bin","seed","key"].forEach(id=>{let el=document.getElementById(id);if(el){el.value=id==="dice"&&ge==="dplus"?state.fields.dplusDice||"":state.fields[id]||"";if(id==="dice"){el.dataset.previousValue=el.value;el.setSelectionRange(el.value.length,el.value.length)}el.dispatchEvent(new Event("input"))}});
 }
 function hodlSetMode(mode){
-  hodlCaptureKey();
+  if(Ne==="camera"&&mode!=="camera")hodlStopCamera();hodlCaptureKey();
   let state=hodlKeys[hodlActiveKey];if(state)state.mode=mode;
-  Ne=mode;hodlEntropyFormat=state?.entropyFormat==="bin"?"bin":"hex";[...Zs.children].forEach((button,index)=>{let active=["dice","hex","seed","key"][index]===Ne;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
+  Ne=mode;hodlEntropyFormat=state?.entropyFormat==="bin"?"bin":"hex";[...Zs.children].forEach((button,index)=>{let active=["dice","camera","hex","seed","key"][index]===Ne;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
   hodlRenderKeyForm();hodlRestoreFormFields(state);hodlUpdateSeedLengthControl();hodlUpdateDerivationPathPreview();hodlQueueSegmentedControlSync();
 }
 function hodlKeyStateNeedsClear(state){
@@ -1981,7 +2051,7 @@ function hodlSyncKeyClearButton(capture=!1){
 }
 function hodlWipeActiveKey(){
   if(hodlActiveKey<0||!hodlKeys[hodlActiveKey])return;
-  let state=hodlKeys[hodlActiveKey];hodlKeys[hodlActiveKey]=hodlNewKeyState(state.name,state.id,state.number);hodlRestoreKey();
+  let state=hodlKeys[hodlActiveKey];if(hodlCameraEntropyNoticeKeyId===state.id){hodlCameraEntropyNotice="";hodlCameraEntropyNoticeKeyId=null}hodlKeys[hodlActiveKey]=hodlNewKeyState(state.name,state.id,state.number);hodlRestoreKey();
 }
 function hodlCaptureKey(){
   if(hodlActiveKey<0||!hodlKeys[hodlActiveKey])return;
@@ -2001,6 +2071,7 @@ function hodlSelectedNetwork(select){
   return select?.value==="testnet"?"testnet":"mainnet"
 }
 function hodlRestoreKey(){
+  hodlStopCamera();
   let state=hodlKeys[hodlActiveKey];
   if(!state){
     Ne="dice";ge="coldcard";hodlEntropyFormat="hex";hodlDPlusNumberedD16=!1;Pt=24;hodlDiceCoinPositions=[];ft="";re=null;Ge=!1;hodlAccountId="bip84";
@@ -2010,7 +2081,7 @@ function hodlRestoreKey(){
     W("#error").textContent="";dr.innerHTML="";document.getElementById("calc-card").hidden=!0;hodlQueueMasterFingerprintPreview(0);hodlUpdateDerivationPathPreview();hodlSyncKeyClearButton();hodlSyncDeriveButton();return
   }
   Ne=state.mode;ge=state.diceMethod;hodlEntropyFormat=state.entropyFormat==="bin"?"bin":"hex";hodlDPlusNumberedD16=Boolean(state.dplusNumberedD16);Pt=hodlSeedLengths[Number(state.targetWords)]?Number(state.targetWords):24;hodlDiceCoinPositions=hodlNormalizeDiceCoinPositions(state.diceCoinPositions);ft=ge==="dplus"?state.dplusLastWord||"":ge==="bitbox"?state.lastWord||"":"";
-  [...Zs.children].forEach((button,index)=>{let active=["dice","hex","seed","key"][index]===Ne;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
+  [...Zs.children].forEach((button,index)=>{let active=["dice","camera","hex","seed","key"][index]===Ne;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
   hodlRenderKeyForm();
   let pass=document.getElementById("pass");if(pass)pass.value=state.fields.pass||"";
   hodlAccountId=state.accountId||state.fields.script||"bip84";
@@ -2175,6 +2246,7 @@ function hodlDeleteActiveMsig(){
 function hodlShowWorkspace(id){
   if(id===hodlWorkspace)return;
   let preservedTop=window.scrollY,preservedLeft=window.scrollX;
+  if(hodlWorkspace==="calc"&&Ne==="camera")hodlStopCamera();
   if(hodlWorkspace==="calc")hodlCaptureKey();else if(hodlWorkspace==="msig")hodlCaptureMsig();
   hodlWorkspace=id;
   [...W("#workspace").children].forEach(button=>{let active=button.dataset.workspace===id;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
@@ -2238,6 +2310,7 @@ function hodlInitSegmentedControls(){
 }
 function hodlInitSecretFieldAutoClear(){
   let clearSecretFields=()=>{
+    hodlStopCamera();hodlCameraEntropyNotice="";hodlCameraEntropyNoticeKeyId=null;
     for(let id of["dice","hex","bin","seed","key","pass"]){let field=document.getElementById(id);if(field)field.value=""}
     hodlInvalidateActiveKeyOutput();let out=document.getElementById("out");if(out)out.innerHTML="";let error=document.getElementById("error");if(error)error.textContent=""
   };
