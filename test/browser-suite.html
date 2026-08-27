@@ -184,6 +184,29 @@
     await until(() => !document.getElementById("calc-card").hidden, "key workspace");
   });
 
+  await test("wallet derivation requires matching BIP39 passphrases", async () => {
+    document.querySelector('[data-seed-words="12"]').click();
+    await chooseMode("Hex");
+    document.querySelector('input[name="entropy-format"][value="hex"]').click();
+    const hex = await until(() => document.getElementById("hex"), "hex input");
+    input(hex, vectors[0].entropy);
+    const passphrase = document.getElementById("pass");
+    const confirmation = document.getElementById("pass-confirm");
+    const derive = document.getElementById("go");
+    input(passphrase, "correct horse battery staple");
+    input(confirmation, "correct horse battery stapel");
+    await wait(0);
+    assert(derive.disabled, "Derive button remained enabled for mismatched passphrases");
+    assert(passphrase.getAttribute("aria-invalid") === "true", "Passphrase was not marked invalid");
+    assert(document.getElementById("passphrase-confirmation-error").textContent.includes("do not match"), "Mismatch error was not shown");
+    input(confirmation, "correct horse battery staple");
+    await until(() => !derive.disabled, "derive button after matching passphrases");
+    assert(passphrase.getAttribute("aria-invalid") === "false", "Matching passphrase remained invalid");
+    assert(!document.getElementById("passphrase-confirmation-error").textContent, "Mismatch error was not cleared");
+    input(passphrase, "");
+    input(confirmation, "");
+  });
+
   await test("a known BIP39 wallet can be derived through the UI", async () => {
     document.querySelector('[data-seed-words="12"]').click();
     await chooseMode("Hex");

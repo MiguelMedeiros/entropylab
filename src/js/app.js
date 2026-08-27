@@ -50,9 +50,17 @@ var vr=[16,20,24,28,32],Rc={0:"00",1:"01",2:"10",3:"11",4:"0",5:"1"};function kr
         <p class="muted" id="seed-length-help">24 words use 256 bits of BIP39 entropy.</p>
       </section>
       <div id="form" class="key-form"></div>
-      <label class="field" id="passphrase-field">Optional BIP39 passphrase
-        <input id="pass" autocomplete="off" placeholder="Leave blank unless you set one" />
-      </label>
+      <div class="passphrase-confirmation" id="passphrase-field">
+        <div class="passphrase-inputs">
+          <label class="field">Optional BIP39 passphrase
+            <input id="pass" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Leave blank unless you set one" aria-describedby="passphrase-confirmation-error" />
+          </label>
+          <label class="field">Confirm BIP39 passphrase
+            <input id="pass-confirm" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Enter the same passphrase again" aria-describedby="passphrase-confirmation-error" />
+          </label>
+        </div>
+        <p class="err passphrase-confirmation-error" id="passphrase-confirmation-error" role="status" aria-live="polite"></p>
+      </div>
       <div class="master-fingerprint-preview" id="master-fingerprint-preview" role="status" aria-live="polite" aria-atomic="true">
         <div class="master-fingerprint-card is-disabled" id="base-master-fingerprint-card" role="group" data-state="unavailable" aria-label="Base seed Master Fingerprint unavailable">
           <span class="master-fingerprint-label">Base seed · Master Fingerprint</span>
@@ -1355,9 +1363,28 @@ function hodlPrivateKeyInputIsValid(){
     let decoded=Ls(value);if(decoded.network!==hodlSelectedNetwork(document.getElementById("network")))return!1;hf(decoded.priv);return!0
   }catch{return!1}
 }
+function hodlPassphraseApplies(){
+  if(Ne==="dice"||Ne==="hex")return!0;
+  if(Ne!=="seed")return!1;
+  let value=document.getElementById("seed")?.value.trim()||"";return!hodlLooksExtendedKey(value)
+}
+function hodlRenderPassphraseConfirmation(){
+  let pass=document.getElementById("pass"),confirmation=document.getElementById("pass-confirm"),message=document.getElementById("passphrase-confirmation-error");
+  if(!pass||!confirmation)return!0;
+  let mismatch=hodlPassphraseApplies()&&pass.value!==confirmation.value;
+  pass.setAttribute("aria-invalid",String(mismatch));confirmation.setAttribute("aria-invalid",String(mismatch));
+  if(message)message.textContent=mismatch?"BIP39 passphrases do not match. Enter the same passphrase twice.":"";
+  return!mismatch
+}
+function hodlConfirmedPassphrase(){
+  let pass=document.getElementById("pass");
+  if(!hodlRenderPassphraseConfirmation()){document.getElementById("pass-confirm")?.focus();throw new Error("BIP39 passphrases do not match. Enter the same passphrase twice.")}
+  return pass?.value||""
+}
 function hodlCanDeriveCurrentKey(){
   try{
     if(Ne!=="key")hodlReadAccount();
+    if(!hodlRenderPassphraseConfirmation())return!1;
     if(Ne==="dice"){
       let input=document.getElementById("dice");if(!input)return!1;
       let analysis=hodlAnalyzeDiceInput(input.value,ge,Pt);if(analysis.invalidCount||analysis.coinDerivedCount)return!1;
@@ -1430,7 +1457,7 @@ function hodlRenderMasterFingerprintPreview(revision=hodlMasterFingerprintRevisi
   let clear=()=>{hodlSetMasterFingerprintCard(baseCard,base,"");hodlSetMasterFingerprintCard(derivedCard,derived,"");arrow.classList.add("is-disabled")};
   let mnemonic=hodlFingerprintMnemonic();if(!mnemonic){clear();return}
   try{hodlSetMasterFingerprintCard(baseCard,base,hodlMasterFingerprint(mnemonic))}catch{clear();return}
-  let value="";if(pass.value.length>0)try{value=hodlMasterFingerprint(mnemonic,pass.value)}catch{}
+  let value="";if(hodlRenderPassphraseConfirmation()&&pass.value.length>0)try{value=hodlMasterFingerprint(mnemonic,pass.value)}catch{}
   let available=hodlSetMasterFingerprintCard(derivedCard,derived,value);arrow.classList.toggle("is-disabled",!available)
 }
 function hodlQueueMasterFingerprintPreview(delay=90){
@@ -1445,8 +1472,9 @@ function hodlInvalidateLiveKeyResult(){
 function hodlInitMasterFingerprintPreview(){
   let panel=document.getElementById("calc-card"),pass=document.getElementById("pass");if(!panel||!pass)return;
   panel.addEventListener("input",event=>{
-    let id=event.target?.id;if(!["pass","dice","hex","bin","seed"].includes(id))return;
-    if(id==="pass"){let state=hodlKeys[hodlActiveKey];if(state)state.fields.pass=pass.value}
+    let id=event.target?.id;if(!["pass","pass-confirm","dice","hex","bin","seed"].includes(id))return;
+    if(id==="pass"||id==="pass-confirm"){let state=hodlKeys[hodlActiveKey];if(state)state.fields[id==="pass"?"pass":"passConfirm"]=event.target.value}
+    hodlRenderPassphraseConfirmation();
     hodlInvalidateLiveKeyResult();hodlQueueMasterFingerprintPreview()
   });
   panel.addEventListener("change",event=>{
@@ -1462,7 +1490,7 @@ function hodlInitMasterFingerprintPreview(){
 function hodlCalculateKey(){
   W("#error").textContent="";
   try{
-    let network=hodlSelectedNetwork(document.getElementById("network")),count=Number(document.getElementById("count").value),passphrase=document.getElementById("pass").value,scriptType=hodlSelectedScriptType(),account=Ne==="key"?0:hodlReadAccount();
+    let network=hodlSelectedNetwork(document.getElementById("network")),count=Number(document.getElementById("count").value),passphrase=hodlConfirmedPassphrase(),scriptType=hodlSelectedScriptType(),account=Ne==="key"?0:hodlReadAccount();
     if(Ne==="dice"){
       if(ge==="dplus"){
         let parsed=hodlDPlusRolls(document.getElementById("dice").value,Pt);
@@ -1954,7 +1982,7 @@ function hodlRenderPsbt(psbt){
 }
 var hodlAccountId="bip84",hodlNextKeyId=1,hodlNextKeyNumber=1,hodlKeys=[],hodlActiveKey=-1;
 function hodlKeyColor(id){let hue=Math.round((Number(id)*137.508+19)%360);return`oklch(61% 0.08 ${hue})`}
-function hodlNewKeyState(name,keyId,keyNumber){let id=keyId??hodlNextKeyId++,number=keyNumber??hodlNextKeyNumber++;return{id,number,color:hodlKeyColor(id),name:name||hodlDefaultKeyName(number),mode:"dice",diceMethod:"coldcard",entropyFormat:"hex",seedAutocomplete:!1,dplusNumberedD16:!1,targetWords:24,diceCoinPositions:[],lastWord:"",dplusLastWord:"",result:null,reveal:!1,accountId:"bip84",error:"",fields:{pass:"",script:"bip84",network:"mainnet",account:"0",count:"5",dice:"",dplusDice:"",hex:"",bin:"",seed:"",key:"",keyKind:"wif-or-hex"}}}
+function hodlNewKeyState(name,keyId,keyNumber){let id=keyId??hodlNextKeyId++,number=keyNumber??hodlNextKeyNumber++;return{id,number,color:hodlKeyColor(id),name:name||hodlDefaultKeyName(number),mode:"dice",diceMethod:"coldcard",entropyFormat:"hex",seedAutocomplete:!1,dplusNumberedD16:!1,targetWords:24,diceCoinPositions:[],lastWord:"",dplusLastWord:"",result:null,reveal:!1,accountId:"bip84",error:"",fields:{pass:"",passConfirm:"",script:"bip84",network:"mainnet",account:"0",count:"5",dice:"",dplusDice:"",hex:"",bin:"",seed:"",key:"",keyKind:"wif-or-hex"}}}
 function hodlRestoreFormFields(state){
   if(!state)return;
   document.querySelectorAll("input[name=kk]").forEach(input=>{input.checked=input.value===(state.fields.keyKind||"wif-or-hex")});
@@ -1973,7 +2001,7 @@ function hodlKeyStateNeedsClear(state){
   return String(state.mode??"dice")!=="dice"||String(state.diceMethod??"coldcard")!=="coldcard"||String(state.entropyFormat??"hex")!=="hex"||Boolean(state.seedAutocomplete)||Boolean(state.dplusNumberedD16)||Number(state.targetWords??24)!==24||
     (Array.isArray(state.diceCoinPositions)&&state.diceCoinPositions.length>0)||String(state.lastWord??"").length>0||String(state.dplusLastWord??"").length>0||Boolean(state.result)||Boolean(state.reveal)||String(state.error??"").length>0||
     String(state.accountId??"bip84")!=="bip84"||String(fields.script??"bip84")!=="bip84"||String(fields.network??"mainnet")!=="mainnet"||String(fields.account??"0")!=="0"||String(fields.count??"5")!=="5"||
-    String(fields.keyKind??"wif-or-hex")!=="wif-or-hex"||["pass","dice","dplusDice","hex","bin","seed","key"].some(hasText)
+    String(fields.keyKind??"wif-or-hex")!=="wif-or-hex"||["pass","passConfirm","dice","dplusDice","hex","bin","seed","key"].some(hasText)
 }
 function hodlSyncKeyClearButton(capture=!1){
   if(capture)hodlCaptureKey();let button=document.getElementById("wipe");if(!button)return;
@@ -1988,7 +2016,7 @@ function hodlCaptureKey(){
   let state=hodlKeys[hodlActiveKey];
   state.mode=Ne;state.diceMethod=ge;state.entropyFormat=hodlEntropyFormat;let seedAutocomplete=document.getElementById("seed-autocomplete");if(seedAutocomplete)state.seedAutocomplete=seedAutocomplete.checked;let dplusToggle=document.getElementById("dplus-numbered-d16");if(dplusToggle)hodlDPlusNumberedD16=dplusToggle.checked;state.dplusNumberedD16=Boolean(hodlDPlusNumberedD16);state.targetWords=Pt;state.diceCoinPositions=hodlDiceCoinPositions.slice();if(ge==="dplus")state.dplusLastWord=ft;else if(ge==="bitbox")state.lastWord=ft;state.result=re;state.reveal=Ge;state.accountId=hodlSelectedScriptType();state.fields.script=state.accountId;
   state.error=document.getElementById("error")?.textContent||"";
-  ["pass","account","count","hex","bin","seed","key"].forEach(id=>{let el=document.getElementById(id);if(el)state.fields[id]=el.value});state.fields.network=hodlSelectedNetwork(document.getElementById("network"));
+  ["pass","account","count","hex","bin","seed","key"].forEach(id=>{let el=document.getElementById(id);if(el)state.fields[id]=el.value});let passConfirm=document.getElementById("pass-confirm");if(passConfirm)state.fields.passConfirm=passConfirm.value;state.fields.network=hodlSelectedNetwork(document.getElementById("network"));
   let dice=document.getElementById("dice");if(dice)state.fields[ge==="dplus"?"dplusDice":"dice"]=dice.value;
   state.fields.keyKind=document.querySelector("input[name=kk]:checked")?.value||state.fields.keyKind||"wif-or-hex";
 }
@@ -2005,14 +2033,14 @@ function hodlRestoreKey(){
   if(!state){
     Ne="dice";ge="coldcard";hodlEntropyFormat="hex";hodlDPlusNumberedD16=!1;Pt=24;hodlDiceCoinPositions=[];ft="";re=null;Ge=!1;hodlAccountId="bip84";
     [...Zs.children].forEach((button,index)=>{let active=index===0;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});hodlRenderKeyForm();
-    let pass=document.getElementById("pass");if(pass)pass.value="";
+    let pass=document.getElementById("pass"),passConfirm=document.getElementById("pass-confirm");if(pass)pass.value="";if(passConfirm)passConfirm.value="";
     hodlSyncSelect(document.getElementById("script-type"),"bip84");hodlSyncSelect(document.getElementById("network"),"mainnet");let account=document.getElementById("account");if(account)account.value="0";hodlSyncSelect(document.getElementById("count"),"5");
     W("#error").textContent="";dr.innerHTML="";document.getElementById("calc-card").hidden=!0;hodlQueueMasterFingerprintPreview(0);hodlUpdateDerivationPathPreview();hodlSyncKeyClearButton();hodlSyncDeriveButton();return
   }
   Ne=state.mode;ge=state.diceMethod;hodlEntropyFormat=state.entropyFormat==="bin"?"bin":"hex";hodlDPlusNumberedD16=Boolean(state.dplusNumberedD16);Pt=hodlSeedLengths[Number(state.targetWords)]?Number(state.targetWords):24;hodlDiceCoinPositions=hodlNormalizeDiceCoinPositions(state.diceCoinPositions);ft=ge==="dplus"?state.dplusLastWord||"":ge==="bitbox"?state.lastWord||"":"";
   [...Zs.children].forEach((button,index)=>{let active=["dice","hex","seed","key"][index]===Ne;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
   hodlRenderKeyForm();
-  let pass=document.getElementById("pass");if(pass)pass.value=state.fields.pass||"";
+  let pass=document.getElementById("pass"),passConfirm=document.getElementById("pass-confirm");if(pass)pass.value=state.fields.pass||"";if(passConfirm)passConfirm.value=state.fields.passConfirm||"";hodlRenderPassphraseConfirmation();
   hodlAccountId=state.accountId||state.fields.script||"bip84";
   hodlSyncSelect(document.getElementById("script-type"),hodlAccountId);
   state.fields.network=state.fields.network==="testnet"?"testnet":"mainnet";hodlSyncSelect(document.getElementById("network"),state.fields.network);
@@ -2238,7 +2266,7 @@ function hodlInitSegmentedControls(){
 }
 function hodlInitSecretFieldAutoClear(){
   let clearSecretFields=()=>{
-    for(let id of["dice","hex","bin","seed","key","pass"]){let field=document.getElementById(id);if(field)field.value=""}
+    for(let id of["dice","hex","bin","seed","key","pass","pass-confirm"]){let field=document.getElementById(id);if(field)field.value=""}
     hodlInvalidateActiveKeyOutput();let out=document.getElementById("out");if(out)out.innerHTML="";let error=document.getElementById("error");if(error)error.textContent=""
   };
   addEventListener("pagehide",clearSecretFields);

@@ -7,6 +7,22 @@ const template = read("src/index.html");
 const app = read("src/js/app.js");
 const css = read("src/css/styles.css");
 
+test("BIP39 passphrases must be entered twice before wallet derivation", () => {
+  for (const markup of [template, app]) {
+    assert.match(markup, /id="pass" type="password"[^>]*aria-describedby="passphrase-confirmation-error"/);
+    assert.match(markup, /id="pass-confirm" type="password"[^>]*aria-describedby="passphrase-confirmation-error"/);
+    assert.match(markup, /id="passphrase-confirmation-error" role="status" aria-live="polite"/);
+  }
+  assert.match(app, /function hodlRenderPassphraseConfirmation\(\)/);
+  assert.match(app, /let mismatch=hodlPassphraseApplies\(\)&&pass\.value!==confirmation\.value/);
+  assert.match(app, /if\(!hodlRenderPassphraseConfirmation\(\)\)return!1/);
+  assert.match(app, /passphrase=hodlConfirmedPassphrase\(\)/);
+  assert.match(app, /fields:\{pass:"",passConfirm:""/);
+  assert.match(css, /\.passphrase-inputs\s*\{[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\)/s);
+  assert.match(css, /#passphrase-field \{ margin-top: var\(--space-section\); \}/);
+  assert.match(css, /@media \(max-width: 719px\)[\s\S]*?\.passphrase-inputs \{ grid-template-columns: minmax\(0, 1fr\); \}/);
+});
+
 test("all wallet network selectors enable and default to mainnet", () => {
   for (const id of ["network", "msig-network", "psbt-network"]) {
     const selectedMainnet = new RegExp(

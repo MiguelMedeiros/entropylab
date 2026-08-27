@@ -91,9 +91,17 @@ the first five dice of a word are skipped (reroll). After 23 words, pick
       <div id="dice-words" class="dice-word-grid" aria-label="24 seed-word slots"></div>
       <div id="last-words" class="row" style="margin-top:8px"></div>
     </div>
-      <label class="field" id="passphrase-field">Optional BIP39 passphrase
-        <input id="pass" autocomplete="off" placeholder="Leave blank unless you set one">
-      </label>
+      <div class="passphrase-confirmation" id="passphrase-field">
+        <div class="passphrase-inputs">
+          <label class="field">Optional BIP39 passphrase
+            <input id="pass" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Leave blank unless you set one" aria-describedby="passphrase-confirmation-error">
+          </label>
+          <label class="field">Confirm BIP39 passphrase
+            <input id="pass-confirm" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Enter the same passphrase again" aria-describedby="passphrase-confirmation-error">
+          </label>
+        </div>
+        <p class="err passphrase-confirmation-error" id="passphrase-confirmation-error" role="status" aria-live="polite"></p>
+      </div>
       <div class="master-fingerprint-preview" id="master-fingerprint-preview" role="status" aria-live="polite" aria-atomic="true">
         <div class="master-fingerprint-card is-disabled" id="base-master-fingerprint-card" role="group" data-state="unavailable" aria-label="Base seed Master Fingerprint unavailable">
           <span class="master-fingerprint-label">Base seed · Master Fingerprint</span>

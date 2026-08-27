@@ -369,7 +369,7 @@ input.bad, textarea.bad { border-color: var(--danger) !important; }
 .key-form > .label + .muted { margin-top: 0; }
 .key-form > .label + textarea { margin-top: 0; }
 .key-form > .muted:empty, .key-form > #last-words:empty { display: none; }
-#calc-card > .key-form + .field { margin-top: var(--space-section); }
+#passphrase-field { margin-top: var(--space-section); }
 .master-fingerprint-preview {
   display: flex; align-items: center; gap: 12px; max-width: 680px; margin-top: var(--space-component);
 }
@@ -400,6 +400,11 @@ input.bad, textarea.bad { border-color: var(--danger) !important; }
   transition: color .16s ease, opacity .16s ease;
 }
 .master-fingerprint-arrow.is-disabled { visibility: hidden; opacity: 0; }
+.passphrase-inputs {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-component);
+}
+.passphrase-inputs .field { min-width: 0; margin: 0; }
+.passphrase-confirmation-error { margin-top: var(--space-control); }
 .key-settings { display: grid; gap: var(--space-component); margin-top: var(--space-section); }
 .key-settings-row {
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-component);
@@ -440,6 +445,9 @@ input.bad, textarea.bad { border-color: var(--danger) !important; }
 }
 .derivation-path-error { margin: 0; color: var(--danger); font-size: 13px; line-height: 1.45; }
 .derivation-path-error.is-note { color: var(--muted); }
+@media (max-width: 719px) {
+  .passphrase-inputs { grid-template-columns: minmax(0, 1fr); }
+}
 @media (max-width: 520px) {
   .key-settings-row { grid-template-columns: minmax(0, 1fr); }
   .key-settings.single-key-mode .network-field { max-width: none; }
