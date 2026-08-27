@@ -13,9 +13,9 @@ var vr=[16,20,24,28,32],Rc={0:"00",1:"01",2:"10",3:"11",4:"0",5:"1"};function kr
     </aside>
     <header>
       <div>
-        <div class="kicker">EntropyLab v{{VERSION}} \xB7 Run Offline \xB7 No entropy RNG \xB7 Bring your own entropy</div>
+        <div class="kicker">EntropyLab v{{VERSION}} \xB7 Run Offline \xB7 Physical entropy \xB7 You stay in control</div>
         <div class="header-title-row"><img class="online-brand-mark" id="online-brand-mark" data-online-src="assets/entropylab_dark.png" alt="" aria-hidden="true" hidden><h1>EntropyLab — Air-Gapped Bitcoin Calculator</h1></div>
-        <p class="muted">This file never generates wallet entropy. Save it to USB and open it on a computer that never goes online.</p>
+        <p class="muted">Bring your own physical entropy with dice, coins, or changing sound from a microphone. Save this file to USB and use it on a computer that never goes online.</p>
         <div class="download-controls no-print">
           <label class="version-picker">Version
             <select class="version-select" aria-label="EntropyLab version"><option value="entropylab-{{VERSION}}.html" selected>v{{VERSION}} (Latest)</option></select>
@@ -28,7 +28,7 @@ var vr=[16,20,24,28,32],Rc={0:"00",1:"01",2:"10",3:"11",4:"0",5:"1"};function kr
     <section class="card">
       <div class="kicker">Hold first. Sign later.</div>
       <h2>You do not need a signing device to hold or receive bitcoin.</h2>
-      <p class="muted">A signing device is only required when you spend. Turn dice rolls or a seed you already have into receive addresses, load the xpub into Bitcoin Core or any watch-only wallet, and get paid. Keep the seed on this air-gapped machine. Carry only addresses and the xpub online.</p>
+      <p class="muted">A signing device is only required when you spend. Turn dice rolls, microphone sound, or a seed you already have into receive addresses, load the xpub into Bitcoin Core or any watch-only wallet, and get paid. Keep the seed on this air-gapped machine. Carry only addresses and the xpub online.</p>
     </section>
     <div class="row no-print segmented-control" id="workspace" role="group" aria-label="Workspace"></div>
     <section class="key-manager no-print" id="key-manager">
@@ -196,7 +196,7 @@ var vr=[16,20,24,28,32],Rc={0:"00",1:"01",2:"10",3:"11",4:"0",5:"1"};function kr
       <p>D++ D8 &amp; D16 method: <a href="https://thesimplestbitcoinbook.net/wp-content/uploads/2023/09/Roll-Your-Own-Seed-Phrase-PDF.pdf">Roll Your Own Bitcoin Seed Phrase</a> \u2014 the published 24-word workflow uses one D8 and two D16 rolls per word, then a final D8.</p>
     </section>
   </div>
-`;if(/^(www\.)?entropylab\.online$/i.test(location.hostname))document.getElementById("online-warning")?.removeAttribute("hidden");var Ne="dice",ge="coldcard",Pt=24,hodlEntropyFormat="hex",hodlDiceCoinPositions=[],hodlDPlusNumberedD16=!1,ft="",re=null,Ge=!1,Zs=W("#modes"),at=W("#form"),dr=W("#out");["dice","hex","seed","key"].forEach(e=>{let t=document.createElement("button"),active=e===Ne;t.type="button";t.className="tab"+(active?" active":"");t.setAttribute("aria-pressed",String(active));t.textContent=e==="dice"?"Dice rolls":e==="hex"?"Hex or binary":e==="seed"?"Seed phrase":"Private key";t.onclick=()=>hodlSetMode(e);Zs.appendChild(t)});document.querySelectorAll("#seed-length [data-seed-words]").forEach(button=>{button.onclick=()=>hodlSetSeedLength(Number(button.dataset.seedWords))});W("#go").onclick=hodlCalculateKey;W("#wipe").onclick=hodlWipeActiveKey;function W(e){let t=e.startsWith("#")?e.slice(1):e,r=document.getElementById(t);if(!r)throw new Error(t);return r}function lr(){if(Ne==="dice"){at.innerHTML=`
+`;if(/^(www\.)?entropylab\.online$/i.test(location.hostname))document.getElementById("online-warning")?.removeAttribute("hidden");var Ne="dice",ge="coldcard",Pt=24,hodlEntropyFormat="hex",hodlDiceCoinPositions=[],hodlDPlusNumberedD16=!1,ft="",re=null,Ge=!1,hodlAudioStream=null,hodlAudioContext=null,hodlAudioSource=null,hodlAudioAnalyser=null,hodlAudioCaptureRevision=0,hodlAudioEntropyNotice="",hodlAudioEntropyNoticeKeyId=null,Zs=W("#modes"),at=W("#form"),dr=W("#out");["dice","audio","hex","seed","key"].forEach(e=>{let t=document.createElement("button"),active=e===Ne;t.type="button";t.className="tab"+(active?" active":"");t.setAttribute("aria-pressed",String(active));t.textContent=e==="dice"?"Dice rolls":e==="audio"?"Microphone":e==="hex"?"Hex or binary":e==="seed"?"Seed phrase":"Private key";t.onclick=()=>hodlSetMode(e);Zs.appendChild(t)});document.querySelectorAll("#seed-length [data-seed-words]").forEach(button=>{button.onclick=()=>hodlSetSeedLength(Number(button.dataset.seedWords))});W("#go").onclick=hodlCalculateKey;W("#wipe").onclick=hodlWipeActiveKey;function W(e){let t=e.startsWith("#")?e.slice(1):e,r=document.getElementById(t);if(!r)throw new Error(t);return r}function lr(){if(Ne==="dice"){at.innerHTML=`
       <p class="label">How to turn rolls into a seed</p>
       <label class="choice"><input type="radio" name="dm" value="coldcard" ${ge==="coldcard"?"checked":""} />
         <span><strong>Hashed rolls / Base 10 [0-9] (recommended)</strong>
@@ -597,7 +597,7 @@ function hodlSheetWifRows(lines,label,rows){
   for(let row of privateRows)lines.push(`  ${row.index}  ${hodlDisplayDerivationPath(row.path)}  ${row.wif}`)
 }
 Oo=function(wallet,revealPrivate){
-  let lines=["ENTROPYLAB \u2014 RECOVERY SHEET","This file was computed locally. The calculator never generated wallet entropy.",""];
+  let lines=["ENTROPYLAB \u2014 RECOVERY SHEET","This file was computed locally. Entropy came from the physical input or recovery material selected in EntropyLab.",""];
   lines.push(`Network: ${wallet.network}`);if(wallet.passphraseUsed)lines.push("Passphrase: YES (not printed)");hodlSheetWarnings(lines,wallet);lines.push("");
   if(wallet.kind==="single"){
     if(revealPrivate){
@@ -776,7 +776,7 @@ function hodlSeedQrExport(mnemonic,options={}){
     let bytes=hodlCompactSeedQrBytes(options.entropyHex);
     if(bytes)compact=`<div class="watch-only-qr seed-qr"><div class="qr qr-seed" aria-label="CompactSeedQR">${Xs(bytes,{ecc:"L",border:4,pixelSize:4,blackColor:"#111111",whiteColor:"#ffffff"})}</div><p class="muted">CompactSeedQR. Same seed, smaller binary code.</p><p class="muted">Compatible with: SeedSigner, Krux, Jade, Passport.</p></div>`;
   }catch{}
-  return`<details class="wallet-advanced"><summary>SeedQR</summary><p class="muted">Scan into a camera signer. This is the seed.${passNote}</p><div class="seed-qr-pair"><div class="watch-only-qr seed-qr"><div class="qr qr-seed" aria-label="SeedQR">${Xs(digits,{ecc:"L",border:4,pixelSize:4,blackColor:"#111111",whiteColor:"#ffffff"})}</div><p class="muted">SeedQR. Numeric.</p><p class="muted">Compatible with: SeedSigner, Krux, Jade, Passport, Coldcard Q.</p><p class="muted mono">${$t(digits)}</p></div>${compact}</div></details>`
+  return`<details class="wallet-advanced"><summary>SeedQR</summary><p class="muted">Scan into a compatible signing device. This is the seed.${passNote}</p><div class="seed-qr-pair"><div class="watch-only-qr seed-qr"><div class="qr qr-seed" aria-label="SeedQR">${Xs(digits,{ecc:"L",border:4,pixelSize:4,blackColor:"#111111",whiteColor:"#ffffff"})}</div><p class="muted">SeedQR. Numeric.</p><p class="muted">Compatible with: SeedSigner, Krux, Jade, Passport, Coldcard Q.</p><p class="muted mono">${$t(digits)}</p></div>${compact}</div></details>`
 }
 
 var hodlSeedLengths=Object.freeze({
@@ -1177,7 +1177,7 @@ function hodlUpdateSeedLengthControl(){
   let section=document.getElementById("seed-length");if(!section)return;let config=hodlSeedConfig();section.hidden=Ne==="key";
   section.querySelectorAll("[data-seed-words]").forEach(button=>{let active=Number(button.dataset.seedWords)===config.words;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
   let help=document.getElementById("seed-length-help");if(!help)return;
-  help.textContent=Ne==="hex"?(hodlEntropyFormat==="bin"?`${config.words} words require exactly ${config.bits} binary digits.`:`${config.words} words require exactly ${config.hexChars} hexadecimal characters.`):Ne==="seed"?`Enter exactly ${config.words} BIP39 words. Extended keys ignore this selection.`:`${config.words} words use ${config.bits} bits of BIP39 entropy.`
+  help.textContent=Ne==="audio"?`The microphone will collect ${config.bits} bits for a ${config.words}-word seed.`:Ne==="hex"?(hodlEntropyFormat==="bin"?`${config.words} words require exactly ${config.bits} binary digits.`:`${config.words} words require exactly ${config.hexChars} hexadecimal characters.`):Ne==="seed"?`Enter exactly ${config.words} BIP39 words. Extended keys ignore this selection.`:`${config.words} words use ${config.bits} bits of BIP39 entropy.`
 }
 function hodlInvalidateActiveKeyOutput(){
   re=null;Ge=!1;ft="";dr.innerHTML="";let error=document.getElementById("error");if(error)error.textContent="";
@@ -1185,9 +1185,66 @@ function hodlInvalidateActiveKeyOutput(){
 }
 function hodlSetSeedLength(words){
   let config=hodlSeedLengths[Number(words)];if(!config)return;if(Pt===config.words){hodlUpdateSeedLengthControl();hodlQueueMasterFingerprintPreview(0);return}
-  hodlCaptureKey();let state=hodlKeys[hodlActiveKey];Pt=config.words;hodlInvalidateActiveKeyOutput();
+  if(Ne==="audio")hodlStopAudio();hodlCaptureKey();let state=hodlKeys[hodlActiveKey];Pt=config.words;hodlInvalidateActiveKeyOutput();
   if(state){state.targetWords=config.words;state.diceMethod=ge;state.lastWord="";state.dplusLastWord="";state.result=null;state.reveal=!1;state.error=""}
   hodlRenderKeyForm();hodlRestoreFormFields(state);hodlUpdateSeedLengthControl();hodlQueueMasterFingerprintPreview(0)
+}
+function hodlStopAudio(){
+  hodlAudioCaptureRevision+=1;
+  if(hodlAudioSource){try{hodlAudioSource.disconnect()}catch{}hodlAudioSource=null}
+  if(hodlAudioContext){hodlAudioContext.close().catch(()=>{});hodlAudioContext=null}
+  hodlAudioAnalyser=null;
+  if(hodlAudioStream){hodlAudioStream.getTracks().forEach(track=>track.stop());hodlAudioStream=null}
+}
+function hodlAudioStatus(message,state=""){
+  let status=document.getElementById("audio-status");if(!status)return;status.textContent=message;status.className="audio-status muted"+(state?` ${state}`:"")
+}
+function hodlAudioErrorMessage(error){
+  if(error?.name==="NotAllowedError")return"Microphone permission was denied. Allow access in the browser and try again.";
+  if(error?.name==="NotFoundError")return"No microphone was found on this device.";
+  if(error?.name==="NotReadableError")return"The microphone is already in use by another app.";
+  return error?.message||"The microphone could not be started."
+}
+function hodlJoinAudioEntropy(...chunks){
+  let length=chunks.reduce((total,chunk)=>total+chunk.length,0),joined=new Uint8Array(length),offset=0;
+  chunks.forEach(chunk=>{joined.set(chunk,offset);offset+=chunk.length});return joined
+}
+async function hodlStartAudio(){
+  let start=document.getElementById("audio-start"),capture=document.getElementById("audio-capture"),canvas=document.getElementById("audio-waveform"),placeholder=document.getElementById("audio-placeholder"),stage=document.getElementById("audio-stage");
+  if(!start||!capture||!canvas||!stage)return;
+  if(!navigator.mediaDevices?.getUserMedia){hodlAudioStatus("Microphone access requires localhost, HTTPS, or a compatible offline browser.","err");return}
+  hodlStopAudio();start.disabled=!0;capture.disabled=!0;hodlAudioStatus("Waiting for audio permission…");
+  try{
+    let stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:!1,noiseSuppression:!1,autoGainControl:!1},video:!1});
+    if(Ne!=="audio"){stream.getTracks().forEach(track=>track.stop());return}
+    let AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)throw new Error("This browser does not provide the Web Audio API.");
+    hodlAudioStream=stream;hodlAudioContext=new AudioContextClass();await hodlAudioContext.resume();hodlAudioSource=hodlAudioContext.createMediaStreamSource(stream);hodlAudioAnalyser=hodlAudioContext.createAnalyser();hodlAudioAnalyser.fftSize=2048;hodlAudioAnalyser.smoothingTimeConstant=0;hodlAudioSource.connect(hodlAudioAnalyser);
+    canvas.hidden=!1;if(placeholder)placeholder.hidden=!0;stage.classList.remove("is-idle");stage.classList.add("is-live");hodlDrawAudioWaveform();
+    start.textContent="Restart microphone";start.disabled=!1;capture.disabled=!1;capture.textContent=`Collect ${hodlSeedConfig().bits}-bit value`;hodlAudioStatus("Microphone ready. Make varied sounds while the six-second capture runs.","ok")
+  }catch(error){hodlStopAudio();start.disabled=!1;hodlAudioStatus(hodlAudioErrorMessage(error),"err")}
+}
+function hodlDrawAudioWaveform(){
+  let canvas=document.getElementById("audio-waveform");if(!canvas||!hodlAudioAnalyser||Ne!=="audio")return;
+  let width=Math.max(320,Math.floor(canvas.clientWidth*devicePixelRatio)),height=Math.max(150,Math.floor(canvas.clientHeight*devicePixelRatio));if(canvas.width!==width)canvas.width=width;if(canvas.height!==height)canvas.height=height;
+  let samples=new Uint8Array(hodlAudioAnalyser.fftSize);hodlAudioAnalyser.getByteTimeDomainData(samples);let context=canvas.getContext("2d"),style=getComputedStyle(document.documentElement),accent=style.getPropertyValue("--selection-accent").trim()||"#d8ff52";
+  context.clearRect(0,0,width,height);context.strokeStyle=accent;context.lineWidth=Math.max(2,devicePixelRatio);context.beginPath();for(let index=0;index<samples.length;index++){let x=index/(samples.length-1)*width,y=samples[index]/255*height;if(index===0)context.moveTo(x,y);else context.lineTo(x,y)}context.stroke();requestAnimationFrame(hodlDrawAudioWaveform)
+}
+async function hodlCaptureAudioEntropy(){
+  let capture=document.getElementById("audio-capture"),start=document.getElementById("audio-start"),progress=document.getElementById("audio-progress"),fill=document.getElementById("audio-progress-fill");
+  if(!capture||!hodlAudioStream||!hodlAudioAnalyser){hodlAudioStatus("Start the microphone before collecting entropy.","err");return}
+  let config=hodlSeedConfig(),slices=120,revision=++hodlAudioCaptureRevision,encoder=new TextEncoder(),systemRandom=new Uint8Array(32);crypto.getRandomValues(systemRandom);let pool=Z(hodlJoinAudioEntropy(encoder.encode(`EntropyLab microphone entropy v1|${hodlAudioContext?.sampleRate||0}|${performance.now()}|${Date.now()}`),systemRandom)),timeSamples=new Uint8Array(hodlAudioAnalyser.fftSize),frequencies=new Uint8Array(hodlAudioAnalyser.frequencyBinCount),variation=0,previous=null;
+  capture.disabled=!0;if(start)start.disabled=!0;if(progress){progress.hidden=!1;progress.setAttribute("aria-valuemax",String(slices));progress.setAttribute("aria-valuenow","0")}if(fill)fill.style.width="0%";
+  hodlAudioStatus("Recording local sound… keep making varied sounds.");
+  try{
+    for(let index=0;index<slices;index++){
+      await new Promise(resolve=>setTimeout(resolve,50));if(revision!==hodlAudioCaptureRevision||Ne!=="audio"||!hodlAudioStream||!hodlAudioAnalyser)return;
+      hodlAudioAnalyser.getByteTimeDomainData(timeSamples);hodlAudioAnalyser.getByteFrequencyData(frequencies);if(previous){for(let sample=0;sample<timeSamples.length;sample+=16)variation+=Math.abs(timeSamples[sample]-previous[sample])}previous=Uint8Array.from(timeSamples);let timing=new Uint8Array(32),view=new DataView(timing.buffer);
+      view.setFloat64(0,performance.now());view.setFloat64(8,Date.now());view.setFloat64(16,hodlAudioContext?.currentTime||0);view.setUint32(24,index);view.setUint32(28,hodlAudioContext?.sampleRate||0);
+      pool=Z(hodlJoinAudioEntropy(pool,timeSamples,frequencies,timing));let done=index+1,percent=Math.round(done/slices*100);if(progress){progress.setAttribute("aria-valuenow",String(done));progress.setAttribute("aria-valuetext",`${percent}% collected`)}if(fill)fill.style.width=`${percent}%`;hodlAudioStatus(`Mixing audio ${done} of ${slices} · ${percent}%`)
+    }
+    if(variation<64)throw new Error("The recording was nearly silent. Make varied sounds and try again.");let hex=M.encode(pool.slice(0,config.bytes)),state=hodlKeys[hodlActiveKey];if(state){state.fields.hex=hex;state.entropyFormat="hex";hodlAudioEntropyNoticeKeyId=state.id}hodlAudioEntropyNotice=`A ${config.bits}-bit value was mixed from six seconds of microphone samples, timing jitter, and browser cryptographic randomness. Review the hexadecimal value below before deriving.`;
+    hodlStopAudio();hodlSetMode("hex")
+  }catch(error){hodlAudioStatus(error?.message||"Microphone samples could not be mixed.","err");capture.disabled=!1;if(start)start.disabled=!1}
 }
 function hodlRenderKeyForm(){
   let config=hodlSeedConfig();hodlUpdateSeedLengthControl();
@@ -1239,9 +1296,26 @@ function hodlRenderKeyForm(){
     }});
     hodlBindKeyFields();return
   }
+  if(Ne==="audio"){
+    at.innerHTML=`
+      <section class="audio-entropy" aria-labelledby="audio-title">
+        <div class="audio-entropy-head"><div><p class="kicker">Physical entropy · stays on this device</p><h3 id="audio-title">Create entropy with your microphone</h3></div><span class="audio-private-badge">No upload</span></div>
+        <p class="muted">The recording never leaves this page and is never saved. EntropyLab mixes six seconds of raw microphone samples, timing jitter, and browser cryptographic randomness with SHA-256, then fills ${config.bits} bits for your ${config.words}-word seed.</p>
+        <div class="audio-stage is-idle" id="audio-stage">
+          <canvas id="audio-waveform" hidden aria-label="Live microphone waveform"></canvas>
+          <div class="audio-placeholder" id="audio-placeholder"><span aria-hidden="true">♪</span><strong>Your microphone waveform</strong><small>Permission is requested only when you press Start microphone.</small></div>
+        </div>
+        <div class="audio-actions"><button class="btn secondary" id="audio-start" type="button">Start microphone</button><button class="btn primary" id="audio-capture" type="button" disabled>Collect ${config.bits}-bit value</button></div>
+        <div class="audio-progress" id="audio-progress" role="progressbar" aria-label="Microphone entropy collection progress" aria-valuemin="0" aria-valuemax="120" aria-valuenow="0" hidden><span id="audio-progress-fill"></span></div>
+        <p class="audio-status muted" id="audio-status" role="status" aria-live="polite">Start the microphone, then make varied sounds while collecting.</p>
+        <p class="audio-caution"><strong>Experimental:</strong> ambient sound can be predictable. For high-value wallets, verify this workflow independently and combine it with another physical entropy method.</p>
+      </section>`;
+    document.getElementById("audio-start").onclick=hodlStartAudio;document.getElementById("audio-capture").onclick=hodlCaptureAudioEntropy;hodlBindKeyFields();return
+  }
   if(Ne==="hex"){
     let binary=hodlEntropyFormat==="bin",inputId=binary?"bin":"hex",entropyCharacters=binary?["0","1"]:[..."0123456789ABCDEF"],entropyPad=`<div class="dice-input-pad dplus entropy-keypad${binary?" binary-keypad":""}" role="group" aria-label="${binary?"Binary":"Hexadecimal"} keypad">${entropyCharacters.map(character=>`<button type="button"${binary?' class="coin-button"':""} data-entropy-digit="${character}" aria-label="${binary?character==="0"?"Enter Heads as binary 0":"Enter Tails as binary 1":`Enter hexadecimal ${character}`}">${binary?character==="0"?"Heads (0)":"Tails (1)":character}</button>`).join("")}</div>`;
     at.innerHTML=`
+      ${hodlAudioEntropyNotice&&hodlAudioEntropyNoticeKeyId===hodlKeys[hodlActiveKey]?.id?`<div class="audio-entropy-result" role="status"><span aria-hidden="true">✓</span><div><strong>Microphone entropy ready</strong><p>${hodlAudioEntropyNotice}</p></div></div>`:""}
       <p class="label">Entropy format</p>
       <div class="choice-grid">
       <label class="choice"><input type="radio" name="entropy-format" value="hex" ${binary?"":"checked"} />
@@ -1252,7 +1326,7 @@ function hodlRenderKeyForm(){
       </label>
       </div>
       <p class="label" id="entropy-input-label">${binary?`Binary entropy (coin flips) for a ${config.words}-word seed`:`Hexadecimal entropy for a ${config.words}-word seed`}</p>
-      <p class="muted" id="entropy-input-help">${binary?`Spaces are added every 11 bits. Each complete group fills one BIP39 word; the checksum-derived final word appears at ${config.bits} bits.`:`Each hex character contributes four bits. Seed-word cards fill as enough bits arrive; the checksum-derived final word appears at exactly ${config.hexChars} characters.`} No generator — enter entropy you already created.</p>
+      <p class="muted" id="entropy-input-help">${binary?`Spaces are added every 11 bits. Each complete group fills one BIP39 word; the checksum-derived final word appears at ${config.bits} bits.`:`Each hex character contributes four bits. Seed-word cards fill as enough bits arrive; the checksum-derived final word appears at exactly ${config.hexChars} characters.`} Enter entropy you created or collected.</p>
       <div class="dice-input-shell entropy-input-shell"><pre class="dice-input-highlight" id="entropy-input-highlight" aria-hidden="true"></pre><textarea id="${inputId}" placeholder="${binary?`Exactly ${config.bits} zeros and ones`:`${config.hexChars} hex characters for a ${config.words}-word seed`}" aria-labelledby="entropy-input-label" aria-describedby="entropy-input-help entropy-meta" autocomplete="off" spellcheck="false" autocapitalize="off"></textarea></div>
       ${entropyPad}
       <p class="muted" id="entropy-meta" aria-live="polite"></p>
@@ -1375,6 +1449,7 @@ function hodlCanDeriveCurrentKey(){
       return hodlDiceEntropy(input.value,ge,Pt).ok
     }
     if(Ne==="hex")return hodlSelectedEntropy().ok;
+    if(Ne==="audio")return!1;
     if(Ne==="seed"){
       let value=document.getElementById("seed")?.value.trim()||"";if(!value)return!1;
       if(hodlLooksExtendedKey(value))return hodlUsableSinglesigImport(value,hodlSelectedNetwork(document.getElementById("network")));
@@ -1481,6 +1556,8 @@ function hodlCalculateKey(){
       }else{let diceValue=document.getElementById("dice").value;if(hodlAnalyzeDiceInput(diceValue,ge,Pt).coinDerivedCount)throw new Error("Coin-button digits are entropy-equivalent only in BitBox mode. Clear them and enter fair die rolls for this conversion method.");let entropy=hodlDiceEntropy(diceValue,ge,Pt);if(!entropy.ok)throw new Error(entropy.error);re=on(entropy,passphrase,network,count,account)}
     }else if(Ne==="hex"){
       let entropy=hodlSelectedEntropy();if(!entropy.ok)throw new Error(entropy.error);re=on(entropy,passphrase,network,count,account)
+    }else if(Ne==="audio"){
+      throw new Error("Collect microphone entropy before deriving the wallet.")
     }else if(Ne==="seed"){
       let value=document.getElementById("seed").value.trim();if(hodlLooksExtendedKey(value))re=Po(value,network,count,account);else{let validation=hodlValidateTargetMnemonic(value,Pt);if(!validation.ok)throw new Error(validation.error);re=ar(validation.words.join(" "),passphrase,network,count,undefined,account)}
     }else{let kind=document.querySelector("input[name=kk]:checked")?.value||"wif-or-hex";re=Io(document.getElementById("key").value,network,kind)}
@@ -1963,9 +2040,9 @@ function hodlRestoreFormFields(state){
   ["dice","hex","bin","seed","key"].forEach(id=>{let el=document.getElementById(id);if(el){el.value=id==="dice"&&ge==="dplus"?state.fields.dplusDice||"":state.fields[id]||"";if(id==="dice"){el.dataset.previousValue=el.value;el.setSelectionRange(el.value.length,el.value.length)}el.dispatchEvent(new Event("input"))}});
 }
 function hodlSetMode(mode){
-  hodlCaptureKey();
+  if(Ne==="audio"&&mode!=="audio")hodlStopAudio();hodlCaptureKey();
   let state=hodlKeys[hodlActiveKey];if(state)state.mode=mode;
-  Ne=mode;hodlEntropyFormat=state?.entropyFormat==="bin"?"bin":"hex";[...Zs.children].forEach((button,index)=>{let active=["dice","hex","seed","key"][index]===Ne;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
+  Ne=mode;hodlEntropyFormat=state?.entropyFormat==="bin"?"bin":"hex";[...Zs.children].forEach((button,index)=>{let active=["dice","audio","hex","seed","key"][index]===Ne;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
   hodlRenderKeyForm();hodlRestoreFormFields(state);hodlUpdateSeedLengthControl();hodlUpdateDerivationPathPreview();hodlQueueSegmentedControlSync();
 }
 function hodlKeyStateNeedsClear(state){
@@ -1981,7 +2058,7 @@ function hodlSyncKeyClearButton(capture=!1){
 }
 function hodlWipeActiveKey(){
   if(hodlActiveKey<0||!hodlKeys[hodlActiveKey])return;
-  let state=hodlKeys[hodlActiveKey];hodlKeys[hodlActiveKey]=hodlNewKeyState(state.name,state.id,state.number);hodlRestoreKey();
+  let state=hodlKeys[hodlActiveKey];if(hodlAudioEntropyNoticeKeyId===state.id){hodlAudioEntropyNotice="";hodlAudioEntropyNoticeKeyId=null}hodlKeys[hodlActiveKey]=hodlNewKeyState(state.name,state.id,state.number);hodlRestoreKey();
 }
 function hodlCaptureKey(){
   if(hodlActiveKey<0||!hodlKeys[hodlActiveKey])return;
@@ -2001,6 +2078,7 @@ function hodlSelectedNetwork(select){
   return select?.value==="testnet"?"testnet":"mainnet"
 }
 function hodlRestoreKey(){
+  hodlStopAudio();
   let state=hodlKeys[hodlActiveKey];
   if(!state){
     Ne="dice";ge="coldcard";hodlEntropyFormat="hex";hodlDPlusNumberedD16=!1;Pt=24;hodlDiceCoinPositions=[];ft="";re=null;Ge=!1;hodlAccountId="bip84";
@@ -2010,7 +2088,7 @@ function hodlRestoreKey(){
     W("#error").textContent="";dr.innerHTML="";document.getElementById("calc-card").hidden=!0;hodlQueueMasterFingerprintPreview(0);hodlUpdateDerivationPathPreview();hodlSyncKeyClearButton();hodlSyncDeriveButton();return
   }
   Ne=state.mode;ge=state.diceMethod;hodlEntropyFormat=state.entropyFormat==="bin"?"bin":"hex";hodlDPlusNumberedD16=Boolean(state.dplusNumberedD16);Pt=hodlSeedLengths[Number(state.targetWords)]?Number(state.targetWords):24;hodlDiceCoinPositions=hodlNormalizeDiceCoinPositions(state.diceCoinPositions);ft=ge==="dplus"?state.dplusLastWord||"":ge==="bitbox"?state.lastWord||"":"";
-  [...Zs.children].forEach((button,index)=>{let active=["dice","hex","seed","key"][index]===Ne;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
+  [...Zs.children].forEach((button,index)=>{let active=["dice","audio","hex","seed","key"][index]===Ne;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
   hodlRenderKeyForm();
   let pass=document.getElementById("pass");if(pass)pass.value=state.fields.pass||"";
   hodlAccountId=state.accountId||state.fields.script||"bip84";
@@ -2175,6 +2253,7 @@ function hodlDeleteActiveMsig(){
 function hodlShowWorkspace(id){
   if(id===hodlWorkspace)return;
   let preservedTop=window.scrollY,preservedLeft=window.scrollX;
+  if(hodlWorkspace==="calc"&&Ne==="audio")hodlStopAudio();
   if(hodlWorkspace==="calc")hodlCaptureKey();else if(hodlWorkspace==="msig")hodlCaptureMsig();
   hodlWorkspace=id;
   [...W("#workspace").children].forEach(button=>{let active=button.dataset.workspace===id;button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active))});
@@ -2238,6 +2317,7 @@ function hodlInitSegmentedControls(){
 }
 function hodlInitSecretFieldAutoClear(){
   let clearSecretFields=()=>{
+    hodlStopAudio();hodlAudioEntropyNotice="";hodlAudioEntropyNoticeKeyId=null;
     for(let id of["dice","hex","bin","seed","key","pass"]){let field=document.getElementById(id);if(field)field.value=""}
     hodlInvalidateActiveKeyOutput();let out=document.getElementById("out");if(out)out.innerHTML="";let error=document.getElementById("error");if(error)error.textContent=""
   };
