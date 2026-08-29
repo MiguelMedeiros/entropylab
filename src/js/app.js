@@ -371,14 +371,20 @@ if (!ec) throw new Error("#app missing");
 if (!ec.hasAttribute("data-entropylab-shell")) ec.innerHTML = `
   <div class="site-header no-print">
     <div class="site-header-inner">
-      <a class="site-brand" href="#btc-calc" aria-label="EntropyLab home">
-        <span class="site-logo" aria-hidden="true">E<span></span></span>
-        <span class="site-title">EntropyLab</span>
-      </a>
+      <div class="site-identity">
+        <a class="site-brand" href="#btc-calc" aria-label="EntropyLab home">
+          <svg class="site-logo" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+            <path class="site-logo-flask" d="M14 6h12M16 6v9L9.7 27.2A4 4 0 0 0 13.2 33h13.6a4 4 0 0 0 3.5-5.8L24 15V6"/>
+            <path class="site-logo-liquid" d="M12 25c4-2 7.5 1.8 16 0"/>
+            <circle cx="17" cy="27.5" r="1.4"/><circle cx="22.5" cy="29" r="1"/><circle cx="23" cy="21" r="1.2"/>
+          </svg>
+          <span class="site-brand-copy"><span class="site-title">EntropyLab</span><span class="site-tagline">Offline wallet lab</span></span>
+        </a>
+        <span class="network-status" id="network-status" data-state="online" role="status" aria-label="Network status: online">Online</span>
+      </div>
       <span class="site-version"><span class="site-version-number">v{{VERSION}}</span> <span class="site-version-tag">(Latest)</span></span>
-      <span class="network-status" id="network-status" data-state="online" role="status" aria-label="Network status: online">Online</span>
       <div class="download-controls">
-        <a class="btn secondary download-html header-button" href="entropylab.html" download="entropylab.html" aria-label="Download EntropyLab"><svg class="download-mark" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg><span class="control-label">Download</span></a>
+        <a class="btn secondary download-html header-button" href="entropylab.html" download="entropylab.html" aria-label="Download EntropyLab"><svg class="download-mark" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg><span class="control-label">Download offline</span></a>
         <a class="btn secondary github-repo-link header-button" href="https://github.com/w-s-bitcoin/entropylab" target="_blank" rel="noopener noreferrer" aria-label="View the EntropyLab GitHub repository in a new tab"><svg class="github-mark" viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span class="control-label">GitHub</span></a>
 <button type="button" class="seed-keyboard-toggle theme-toggle header-button" id="theme-toggle" data-theme-mode="dark" aria-label="Theme: dark. Switch to light"><svg class="theme-icon-dark" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg><svg class="theme-icon-light" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="theme-icon-system" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></button>
       </div>

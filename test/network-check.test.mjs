@@ -136,39 +136,18 @@ test("the status tag ships online, sits in the header, and is wired to the build
   }
   assert.match(template, /\/\*@@JS_NETWORK@@\*\//);
   assert.match(build, /network-check\.js/);
-  // Green when offline, bright red when online, carried by the text alone.
-  assert.match(css, /\.network-status\[data-state="offline"\] \{ color: var\(--ok-bright\); \}/);
-  assert.match(css, /\.network-status\[data-state="online"\] \{ color: var\(--danger-bright\); \}/);
-  // Both themes have to define these, or one of them falls back to nothing.
-  for (const token of ["--danger-bright", "--ok-bright"]) {
-    assert.match(css, new RegExp(":root \\{[^}]*" + token + ":", "s"));
-    assert.match(css, new RegExp(':root\\[data-theme="light"\\] \\{[^}]*' + token + ":", "s"));
+  // The safety state belongs to the identity group and uses a quiet text label
+  // plus a state-coloured dot, rather than masquerading as a navigation item.
+  for (const markup of [template, app]) {
+    assert.match(markup, /class="site-identity"[\s\S]*?class="site-brand"[\s\S]*?id="network-status"/);
   }
-  // letter-spacing leaves a trailing gap after the last letter; the indent puts
-  // a matching one in front so the word sits centred in its own box.
-  assert.match(css, /\.network-status \{[^}]*letter-spacing: 0\.1em;[^}]*text-indent: 0\.1em;/s);
-  // Transparent, but still 1px: the outline goes without the height moving.
-  assert.match(css, /\.network-status \{[^}]*border: 1px solid transparent;[^}]*text-transform: uppercase;/s);
-  // Half the tag's height is how far it rises above the rule, and the logo art
-  // clears that by ~2px, so its height cannot be left to the font's metrics.
-  assert.match(css, /\.network-status \{[^}]*line-height: 1;/s);
-  // The bar's own rule follows the tag, off the same attribute, so the two can
-  // never disagree about whether an adapter is live.
-  assert.match(css, /\.site-header:has\(\.network-status\[data-state="online"\]\) \{ border-bottom-color: var\(--danger\); \}/);
-  // Nothing repaints it for the offline state; it falls back to the grey.
-  assert.match(css, /\.site-header \{[^}]*border-bottom: 1px solid var\(--border\);/s);
-  // Left-aligned under the lockup, which needs the header row as its containing
-  // block. It shares one token with the bar's padding so the two cannot drift.
-  assert.match(css, /\.network-status \{[^}]*position: absolute; left: var\(--site-header-pad\); bottom: 0; transform: translateY\(50%\);/s);
-  assert.match(css, /\.site-header-inner \{\s*position: relative;/);
-  assert.match(css, /\.site-header-inner \{[^}]*padding: 0 var\(--site-header-pad\);/s);
-  // Hung half over the bottom rule, with an opaque fill so the rule stops at
-  // the tag's edges instead of striking through the word.
-  assert.match(css, /\.network-status \{[^}]*background: var\(--bg\);/s);
-  // On phones the word becomes the same status dot used by the full chip,
-  // preserving the warning without consuming the navigation row.
+  assert.match(css, /\.site-identity \{[^}]*display: flex; align-items: center;/s);
+  assert.match(css, /\.network-status \{[^}]*position: static;[^}]*border-left: 1px solid var\(--border\);[^}]*background: transparent;/s);
+  assert.match(css, /\.network-status\[data-state="offline"\]::before \{[^}]*background: var\(--ok\);/s);
+  assert.match(css, /\.network-status\[data-state="online"\]::before \{[^}]*background: var\(--danger-bright\);/s);
+  // On phones the word collapses but the safety dot remains visible.
   const phone = css.slice(css.indexOf("@media (max-width: 480px)"));
-  assert.match(phone, /\.network-status \{[^}]*width: 28px;[^}]*height: 28px;[^}]*font-size: 0;/s);
+  assert.match(phone, /\.network-status \{[^}]*width: 18px;[^}]*height: 28px;[^}]*font-size: 0;/s);
   assert.match(css, /\.network-status::before \{[^}]*background: currentColor;/s);
   // The old banner's rules went with the banner.
   assert.doesNotMatch(css, /\.network-warning/);

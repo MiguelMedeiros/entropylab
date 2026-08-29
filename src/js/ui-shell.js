@@ -135,7 +135,7 @@
   const workspace = document.getElementById("workspace");
   let workflowGuide = null;
   const workflowSteps = [
-    ["choose", "Choose", "Pick a workspace"],
+    ["choose", "Workspace", "Pick a workspace"],
     ["input", "Input", "Add test data"],
     ["review", "Review", "Check before deriving"],
     ["export", "Export", "Verify independently"],

@@ -233,9 +233,9 @@ for (const file of htmlFiles) {
   });
   test(`${file} ships the code-native header mark`, () => {
     const html = read(file);
-    // The mark is text and CSS, so the downloaded file remains sharp at every
-    // density and does not depend on a theme-specific bitmap asset.
-    assert.match(html, /class="site-logo"[^>]*>E<span><\/span><\/span>/);
+    // The inline vector remains sharp at every density and does not depend on
+    // a theme-specific bitmap asset.
+    assert.match(html, /<svg class="site-logo"[^>]*>[\s\S]*?class="site-logo-flask"[\s\S]*?class="site-logo-liquid"[\s\S]*?<\/svg>/);
     assert.doesNotMatch(html, /@@LOGO_(?:DARK|LIGHT)@@/);
     assert.doesNotMatch(html, /\.site-logo \{[^}]*background(?:-image)?: url\(/s);
   });

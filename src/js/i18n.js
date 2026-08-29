@@ -19,6 +19,8 @@
   const rows = [
     ["Language", "Idioma", "Idioma", "语言", "भाषा", "اللغة", "Langue", "Sprache", "言語"],
     ["Download", "Baixar", "Descargar", "下载", "डाउनलोड", "تنزيل", "Télécharger", "Herunterladen", "ダウンロード"],
+    ["Download offline", "Baixar para uso offline", "Descargar para usar sin conexión", "下载离线版", "ऑफ़लाइन उपयोग के लिए डाउनलोड करें", "تنزيل للاستخدام دون اتصال", "Télécharger pour usage hors ligne", "Für Offline-Nutzung herunterladen", "オフライン版をダウンロード"],
+    ["Offline wallet lab", "Laboratório de carteiras offline", "Laboratorio de carteras sin conexión", "离线钱包实验室", "ऑफ़लाइन वॉलेट प्रयोगशाला", "مختبر محافظ دون اتصال", "Laboratoire de portefeuilles hors ligne", "Offline-Wallet-Labor", "オフラインウォレット研究室"],
     ["Presentation", "Apresentação", "Presentación", "演示", "प्रस्तुति", "العرض", "Présentation", "Präsentation", "プレゼンテーション"],
     ["Show data", "Mostrar dados", "Mostrar datos", "显示数据", "डेटा दिखाएँ", "إظهار البيانات", "Afficher les données", "Daten anzeigen", "データを表示"],
     ["More", "Mais", "Más", "更多", "अधिक", "المزيد", "Plus", "Mehr", "その他"],

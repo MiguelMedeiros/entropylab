@@ -736,7 +736,7 @@ test("the site header is fixed, carries a compact brand, and organizes its contr
     const wrapper = markup.indexOf('<div class="wrap">');
     assert.ok(header >= 0, "the fixed site header is missing");
     assert.ok(header < wrapper, "the site header must come before the page wrapper");
-    assert.match(markup, /<a class="site-brand" href="#btc-calc" aria-label="EntropyLab home">\s*<span class="site-logo" aria-hidden="true">E<span><\/span><\/span>\s*<span class="site-title">EntropyLab<\/span>\s*<\/a>\s*<span class="site-version">/);
+    assert.match(markup, /<div class="site-identity">\s*<a class="site-brand" href="#btc-calc" aria-label="EntropyLab home">[\s\S]*?<svg class="site-logo"[\s\S]*?class="site-logo-flask"[\s\S]*?<span class="site-title">EntropyLab<\/span><span class="site-tagline">Offline wallet lab<\/span>[\s\S]*?id="network-status"[\s\S]*?<\/div>\s*<span class="site-version">/);
     for (const control of [/class="site-version-number">v\{\{VERSION\}\}</, /class="btn secondary download-html header-button"/, /class="btn secondary github-repo-link header-button"/, /id="theme-toggle"/]) {
       assert.match(markup.slice(header, wrapper), control, `the fixed header is missing ${control}`);
     }
@@ -752,11 +752,14 @@ test("the site header is fixed, carries a compact brand, and organizes its contr
   assert.doesNotMatch(css, /^header (\{|h1)/m);
   assert.match(css, /\.site-header \{\s*position: fixed; top: 0; left: 0; right: 0;/);
   assert.match(css, /\.site-header-inner \{[^}]*height: var\(--site-header-height\)/s);
+  assert.match(css, /\.site-header-inner \{[^}]*grid-template-areas: "identity actions" "workflow workflow"/s);
+  assert.match(css, /\.site-identity \{ grid-area: identity;/);
   assert.match(css, /\.site-brand \{[^}]*display: inline-flex; align-items: center;/s);
-  assert.match(css, /\.site-logo \{[^}]*border-radius: 9px;[^}]*font-family: var\(--display\);/s);
-  assert.match(css, /\.site-logo > span \{[^}]*background: var\(--accent\);/s);
+  assert.match(css, /\.site-logo \{[^}]*width: 38px; height: 38px;/s);
+  assert.match(css, /\.site-logo-flask \{[^}]*stroke: currentColor;/s);
+  assert.match(css, /\.site-logo-liquid \{[^}]*stroke: var\(--accent\);/s);
   assert.match(css, /\.site-title \{[^}]*font-family: var\(--sans\);[^}]*color: var\(--fg\);/s);
-  assert.match(css, /@media \(max-width: 719px\) \{[\s\S]*?\.site-title \{ font-size: 19px; \}/);
+  assert.match(css, /\.site-tagline \{[^}]*text-transform: uppercase;/s);
   assert.match(css, /\.site-version \{[^}]*flex: 0 0 auto; display: inline-flex; align-items: baseline; gap: 6px;/s);
   // The version echoes the kicker's accent and weight, but stays far below its
   // display tracking, which reads as spread-out in a row of controls.
@@ -773,9 +776,9 @@ test("the site header is fixed, carries a compact brand, and organizes its contr
   assert.match(css, /\.wrap \{ max-width: 1000px; margin: 0 auto; padding: calc\(var\(--site-header-height\) \+ 20px\) 16px 64px; \}/);
   assert.match(css, /@media print \{[\s\S]*?\.wrap \{ padding-top: 20px; \}/);
   assert.match(css, /html \{[^}]*scroll-padding-top: calc\(var\(--site-header-height\) \+ 12px\)/);
-  // Every header control is one height, and the bar is sized to match it.
+  // Controls share one height while the header reserves a separate workflow row.
   assert.match(css, /\.header-button \{ min-height: 40px; font-size: 14px; \}/);
-  assert.match(css, /--site-header-height: 52px;/);
+  assert.match(css, /--site-header-height: 110px;/);
 });
 
 test("the header brand is code-native and never fetches decorative artwork", () => {
@@ -823,7 +826,7 @@ test("the favicon ships inside the document instead of the assets directory", ()
   assert.doesNotMatch(online, /online-favicon|assets\/favicon\.png/);
 });
 
-test("narrow screens keep the fixed header on one row by hiding control labels", () => {
+test("narrow screens preserve the two-level header without crowding controls", () => {
   assert.match(css, /@media \(max-width: 719px\) \{[\s\S]*?\.control-label \{ display: none; \}/);
   // Icon-only buttons match the theme toggle's 40px square.
   assert.match(css, /@media \(max-width: 719px\) \{[\s\S]*?\.download-controls \.btn:is\(\.download-html, \.github-repo-link\) \{ flex: 0 0 40px; width: 40px; padding: 0; justify-content: center; \}/);
@@ -833,7 +836,7 @@ test("narrow screens keep the fixed header on one row by hiding control labels",
     assert.doesNotMatch(markup, /version-picker|version-select|<span class="control-label">Version<\/span>/);
     // The glyph precedes the label at every width and stands alone once the
     // labels collapse, so it is never hidden.
-    assert.match(markup, /<svg class="download-mark"[^>]*><path d="M12 3v12M7 11l5 5 5-5M5 21h14"\/><\/svg><span class="control-label">Download<\/span><\/a>/);
+    assert.match(markup, /<svg class="download-mark"[^>]*><path d="M12 3v12M7 11l5 5 5-5M5 21h14"\/><\/svg><span class="control-label">Download offline<\/span><\/a>/);
     assert.match(css, /\.download-mark \{ display: block; flex: 0 0 auto; \}/);
     assert.doesNotMatch(css, /@media \(max-width: 719px\) \{[\s\S]*?\.download-mark \{/);
     // One rule owns the icon-to-label gap for both buttons, so they cannot drift.
@@ -973,7 +976,7 @@ test("long workflows expose readiness and dock actions only after engagement", (
 });
 
 test("guided workflow, empty states, feedback, and errors explain the next action", () => {
-  for (const [step, label] of [["choose", "Choose"], ["input", "Input"], ["review", "Review"], ["export", "Export"]]) {
+  for (const [step, label] of [["choose", "Workspace"], ["input", "Input"], ["review", "Review"], ["export", "Export"]]) {
     assert.match(uiShell, new RegExp(`\\["${step}", "${label}",`));
   }
   assert.match(uiShell, /const syncWorkflowGuide/);
@@ -985,7 +988,8 @@ test("guided workflow, empty states, feedback, and errors explain the next actio
   assert.match(uiShell, /if \(position\.textContent !== positionText\) position\.textContent = positionText/);
   assert.match(uiShell, /data-workflow-current/);
   assert.doesNotMatch(uiShell, /class="workflow-current" aria-hidden/);
-  assert.match(css, /\.workflow-guide \{ flex: 1 1 580px;/);
+  assert.match(css, /\.workflow-guide \{[\s\S]*?grid-area: workflow;[\s\S]*?border-top:/);
+  assert.match(css, /\.workflow-guide ol \{[^}]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/s);
   assert.match(uiShell, /class="workflow-copy"/);
   assert.match(uiShell, /<small>\$\{description\}<\/small>/);
   assert.match(uiShell, /data-empty-label/);
