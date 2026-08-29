@@ -292,12 +292,16 @@ words, pick one of the checksum words.</span></span>
       <span class="footer-path">BIP39 <b>›</b> BIP32 <b>›</b> Bitcoin addresses</span>
     </footer>
   </div>
-</div><!--/$--><div class="disclaimer-overlay no-print" id="beta-disclaimer" role="alertdialog" aria-modal="true" aria-labelledby="beta-disclaimer-title" aria-describedby="beta-disclaimer-text" hidden>
+</div><!--/$--><div class="disclaimer-overlay no-print" id="beta-disclaimer" role="alertdialog" aria-modal="true" aria-labelledby="beta-disclaimer-title" aria-describedby="beta-disclaimer-text beta-disclaimer-points" hidden>
   <div class="disclaimer-card">
-    <svg class="disclaimer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4M12 17.5h.01"/></svg>
-    <p class="disclaimer-title" id="beta-disclaimer-title">Beta software</p>
-    <p class="disclaimer-text" id="beta-disclaimer-text">EntropyLab is experimental and can be dangerous: a bug could produce wrong keys or addresses, and funds sent to them could be lost. Do not use it in production, and never with funds you cannot afford to lose.</p>
-    <button class="btn primary" id="beta-disclaimer-accept" type="button">I understand</button>
+    <div class="disclaimer-mark" aria-hidden="true"><svg class="disclaimer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 20h19L12 3z"/><path d="M12 10v4M12 17.5h.01"/></svg></div>
+    <div class="disclaimer-content">
+      <p class="disclaimer-kicker">Before you continue</p>
+      <h2 class="disclaimer-title" id="beta-disclaimer-title">Use test data only</h2>
+      <p class="disclaimer-text" id="beta-disclaimer-text">EntropyLab is experimental. A bug could produce incorrect keys or addresses and cause permanent loss of funds.</p>
+      <ul class="disclaimer-points" id="beta-disclaimer-points"><li>Never enter a funded wallet.</li><li>Verify every result independently.</li><li>Use a trusted, air-gapped computer.</li></ul>
+      <div class="disclaimer-actions"><button class="btn primary" id="beta-disclaimer-accept" type="button">Continue with test data</button></div>
+    </div>
   </div>
 </div>
 <script>/*@@JS_BROWSER_CHECK@@*/</script><script id="btc-calc-script">/*@@JS_MAIN@@*/</script>

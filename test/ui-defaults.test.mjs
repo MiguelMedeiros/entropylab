@@ -658,14 +658,15 @@ test("the beta disclaimer gates the page as a modal until accepted", () => {
   // sees an overlay it cannot dismiss.
   assert.match(
     template,
-    /<div class="disclaimer-overlay no-print" id="beta-disclaimer" role="alertdialog" aria-modal="true" aria-labelledby="beta-disclaimer-title" aria-describedby="beta-disclaimer-text" hidden>/,
+    /<div class="disclaimer-overlay no-print" id="beta-disclaimer" role="alertdialog" aria-modal="true" aria-labelledby="beta-disclaimer-title" aria-describedby="beta-disclaimer-text beta-disclaimer-points" hidden>/,
   );
-  assert.match(template, /<p class="disclaimer-title" id="beta-disclaimer-title">Beta software<\/p>/);
+  assert.match(template, /<h2 class="disclaimer-title" id="beta-disclaimer-title">Use test data only<\/h2>/);
   assert.match(
     template,
-    /<p class="disclaimer-text" id="beta-disclaimer-text">EntropyLab is experimental and can be dangerous:.*Do not use it in production, and never with funds you cannot afford to lose\.<\/p>/,
+    /<p class="disclaimer-text" id="beta-disclaimer-text">EntropyLab is experimental\..*permanent loss of funds\.<\/p>/,
   );
-  assert.match(template, /<button class="btn primary" id="beta-disclaimer-accept" type="button">I understand<\/button>/);
+  assert.match(template, /id="beta-disclaimer-points"[^>]*><li>Never enter a funded wallet\.<\/li>/);
+  assert.match(template, /<button class="btn primary" id="beta-disclaimer-accept" type="button">Continue with test data<\/button>/);
   // The fade: transparent until .is-visible, faded out and inert once
   // .is-dismissed, and motion-free when the user prefers reduced motion.
   assert.match(css, /\.disclaimer-overlay \{\s*position: fixed; inset: 0;[^}]*opacity: 0; transition: opacity \.24s ease;/s);
@@ -673,7 +674,7 @@ test("the beta disclaimer gates the page as a modal until accepted", () => {
   assert.match(css, /\.disclaimer-overlay\.is-visible \{ opacity: 1; \}/);
   assert.match(css, /\.disclaimer-overlay\.is-dismissed \{ opacity: 0; pointer-events: none; \}/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{ \.disclaimer-overlay \{ transition: none; \} \}/);
-  assert.match(css, /\.disclaimer-card \{[^}]*border: 1px solid var\(--danger\);/s);
+  assert.match(css, /\.disclaimer-card \{[^}]*grid-template-columns: 58px minmax\(0, 1fr\);[^}]*background: var\(--surface\);/s);
 });
 
 test("the lockup steps down again below 400px", () => {
@@ -798,7 +799,9 @@ test("the canonical hero explains the primary task before the workbench", () => 
   assert.match(template, /Bring dice rolls, cards, a seed phrase, or a private key/);
   assert.ok(template.indexOf('class="hero"') < template.indexOf('id="workspace"'));
   assert.match(css, /\.hero \{[\s\S]*?grid-template-columns:/);
-  assert.match(css, /\.hero h1 \{[\s\S]*?font-size: clamp\(3rem, 6\.2vw, 6\.2rem\)/);
+  assert.match(css, /\.hero h1 \{[\s\S]*?font-size: clamp\(2\.8rem, 5vw, 4\.8rem\)/);
+  assert.match(uiShell, /className = "hero-actions no-print"/);
+  assert.match(uiShell, /href="#workspace">Start with test data<\/a>/);
 });
 
 test("the favicon ships inside the document instead of the assets directory", () => {
@@ -837,6 +840,10 @@ test("narrow screens keep the fixed header on one row by hiding control labels",
     assert.match(css, /@media \(max-width: 719px\) \{[\s\S]*?\.site-version-tag \{ display: none; \}/);
     assert.match(markup, /class="btn secondary github-repo-link header-button"[^>]*aria-label="View the EntropyLab GitHub repository in a new tab"/);
   }
+  assert.match(uiShell, /more\.className = "header-more"/);
+  assert.match(uiShell, /menu\.append\(headerVersion\)/);
+  assert.match(uiShell, /menu\.append\(githubLink\)/);
+  assert.doesNotMatch(css, /\.download-controls \.github-repo-link \{ display: none !important; \}/);
 });
 
 test("PSBT amounts and fees are labeled as unverified claims", () => {
@@ -932,6 +939,22 @@ test("long workflows expose readiness and dock actions only after engagement", (
   assert.match(uiShell, /isInsideWorkflow && actionIsStillBelowViewport/);
   assert.match(css, /\.current-item-actions\.is-docked, \.psbt-actions\.is-docked \{ position: sticky; bottom: 12px;/);
   assert.doesNotMatch(css, /\.current-item-actions, \.psbt-actions \{[^}]*position: sticky/s);
+});
+
+test("guided workflow, empty states, feedback, and errors explain the next action", () => {
+  for (const step of ["choose", "input", "review", "export"]) {
+    assert.match(uiShell, new RegExp(`data-workflow-step="${step}"`));
+  }
+  assert.match(uiShell, /const syncWorkflowGuide/);
+  assert.match(uiShell, /data-empty-label/);
+  assert.match(uiShell, /className = "action-toast no-print"/);
+  assert.match(uiShell, /Results ready\. Review every value before exporting\./);
+  assert.match(uiShell, /error\.setAttribute\("role", "alert"\)/);
+  assert.match(uiShell, /skipLink\.textContent = "Skip to calculator"/);
+  assert.match(css, /#out:empty::before, #psbt-out:empty::before/);
+  assert.match(css, /\.action-toast\.is-visible/);
+  assert.match(css, /\.skip-link:focus \{ transform: translate\(-50%, 0\); \}/);
+  assert.match(css, /:is\(a, button, summary, input, textarea, select\):focus-visible/);
 });
 
 test("workbench motion is purposeful and optional", () => {

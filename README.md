@@ -40,6 +40,9 @@ Official website: [entropylab.online](https://entropylab.online)
 - Includes a presentation mode that temporarily obscures and disables visible
   secret-bearing panels while the screen is shared. This is a visual safeguard,
   not a substitute for clearing the session or using an air-gapped computer.
+- Guides the offline workflow through choose, input, review, and export stages,
+  with contextual readiness messages, keyboard-visible focus, mobile-friendly
+  controls, and reduced-motion support.
 - Exports a Bitcoin Core `wallet.dat` (SQLite descriptor wallet) with every
   derived output descriptor already imported — receive and change for each
   script type, active and ready for address generation. The default download

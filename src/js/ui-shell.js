@@ -4,6 +4,14 @@
   const privacyLabel = privacyButton?.querySelector(".privacy-label");
   const networkStatus = document.getElementById("network-status");
 
+  if (app && !app.querySelector(".skip-link")) {
+    const skipLink = document.createElement("a");
+    skipLink.className = "skip-link no-print";
+    skipLink.href = "#workspace";
+    skipLink.textContent = "Skip to calculator";
+    app.prepend(skipLink);
+  }
+
   const syncNetworkStatusTitle = () => {
     if (!networkStatus) return;
     const online = networkStatus.dataset.state !== "offline";
@@ -18,6 +26,176 @@
     });
     syncNetworkStatusTitle();
   }
+
+  const headerControls = document.querySelector(".download-controls");
+  const headerVersion = document.querySelector(".site-version");
+  const githubLink = headerControls?.querySelector(".github-repo-link");
+  if (headerControls && (headerVersion || githubLink)) {
+    const more = document.createElement("details");
+    more.className = "header-more";
+    more.innerHTML = `
+      <summary class="header-button" aria-label="Open project information">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="19" cy="12" r="1.5"></circle></svg>
+        <span class="control-label">More</span>
+      </summary>
+      <div class="header-menu" aria-label="Project information"></div>`;
+    const menu = more.querySelector(".header-menu");
+    if (headerVersion) menu.append(headerVersion);
+    if (githubLink) menu.append(githubLink);
+    headerControls.append(more);
+    githubLink?.addEventListener("click", () => more.removeAttribute("open"));
+    document.addEventListener("click", (event) => {
+      if (more.open && !more.contains(event.target)) more.removeAttribute("open");
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && more.open) {
+        more.removeAttribute("open");
+        more.querySelector("summary")?.focus();
+      }
+    });
+  }
+
+  const heroCopy = document.querySelector(".hero-copy");
+  if (heroCopy && !heroCopy.querySelector(".hero-actions")) {
+    const heroActions = document.createElement("div");
+    heroActions.className = "hero-actions no-print";
+    heroActions.innerHTML = `
+      <a class="btn primary hero-start" href="#workspace">Start with test data</a>
+      <span class="hero-trust"><span aria-hidden="true">✓</span> No entropy is generated here</span>`;
+    heroCopy.append(heroActions);
+  }
+
+  const workspace = document.getElementById("workspace");
+  let workflowGuide = null;
+  if (workspace) {
+    workflowGuide = document.createElement("nav");
+    workflowGuide.className = "workflow-guide no-print";
+    workflowGuide.setAttribute("aria-label", "Wallet workflow");
+    workflowGuide.innerHTML = `
+      <ol>
+        <li data-workflow-step="choose"><button type="button"><span>1</span><strong>Choose</strong><small>Pick a workspace</small></button></li>
+        <li data-workflow-step="input"><button type="button"><span>2</span><strong>Add data</strong><small>Use test input first</small></button></li>
+        <li data-workflow-step="review"><button type="button"><span>3</span><strong>Review</strong><small>Check before deriving</small></button></li>
+        <li data-workflow-step="export"><button type="button"><span>4</span><strong>Export</strong><small>Verify independently</small></button></li>
+      </ol>`;
+    workspace.before(workflowGuide);
+  }
+
+  const visiblePanel = () => [...document.querySelectorAll("#calc-card, #msig-card, #psbt-card")]
+    .find((panel) => !panel.hidden && panel.offsetParent !== null);
+  const hasEnteredData = (panel) => [...(panel?.querySelectorAll("textarea, input:not([type='radio']):not([type='checkbox']):not([type='range']):not([type='number'])") || [])]
+    .some((field) => String(field.value || "").trim());
+  const hasResults = () => [document.getElementById("out"), document.getElementById("psbt-out")]
+    .some((output) => output && String(output.textContent || "").trim());
+
+  const syncWorkflowGuide = () => {
+    if (!workflowGuide) return;
+    const panel = visiblePanel();
+    const primary = panel?.querySelector("#go, #msig-go, #psbt-go");
+    const entered = hasEnteredData(panel);
+    const ready = Boolean(primary && !primary.disabled && entered);
+    const active = hasResults() ? 3 : ready ? 2 : entered ? 1 : 0;
+    [...workflowGuide.querySelectorAll("li")].forEach((item, index) => {
+      item.classList.toggle("is-complete", index < active);
+      item.classList.toggle("is-current", index === active);
+      const button = item.querySelector("button");
+      if (index === active) button.setAttribute("aria-current", "step");
+      else button.removeAttribute("aria-current");
+    });
+  };
+
+  workflowGuide?.addEventListener("click", (event) => {
+    const step = event.target.closest?.("[data-workflow-step]")?.dataset.workflowStep;
+    const panel = visiblePanel();
+    let target = workspace;
+    if (step === "input") target = panel || workspace;
+    if (step === "review") target = panel?.querySelector(".current-item-actions, .psbt-actions") || panel || workspace;
+    if (step === "export") target = panel?.id === "psbt-card" ? document.getElementById("psbt-out") : document.getElementById("out");
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  const output = document.getElementById("out");
+  const psbtOutput = document.getElementById("psbt-out");
+  output?.setAttribute("data-empty-label", "Results will appear here after a successful derivation.");
+  psbtOutput?.setAttribute("data-empty-label", "The decoded PSBT report will appear here.");
+
+  const statusRegion = document.createElement("div");
+  statusRegion.className = "action-toast no-print";
+  statusRegion.setAttribute("role", "status");
+  statusRegion.setAttribute("aria-live", "polite");
+  statusRegion.setAttribute("aria-atomic", "true");
+  document.body.append(statusRegion);
+  let toastTimer = 0;
+  const announce = (message) => {
+    window.clearTimeout(toastTimer);
+    statusRegion.textContent = message;
+    statusRegion.classList.remove("is-visible");
+    requestAnimationFrame(() => statusRegion.classList.add("is-visible"));
+    toastTimer = window.setTimeout(() => statusRegion.classList.remove("is-visible"), 2600);
+  };
+
+  const msigActions = document.querySelector("#msig-card .current-item-actions");
+  let msigReadiness = document.getElementById("msig-readiness");
+  if (msigActions && !msigReadiness) {
+    msigReadiness = document.createElement("span");
+    msigReadiness.className = "action-readiness";
+    msigReadiness.id = "msig-readiness";
+    msigReadiness.setAttribute("role", "status");
+    msigActions.append(msigReadiness);
+  }
+  const syncActionHelp = () => {
+    const derive = document.getElementById("go");
+    const deriveStatus = document.getElementById("derive-readiness");
+    if (derive && deriveStatus) {
+      derive.setAttribute("aria-describedby", "derive-readiness");
+      derive.title = derive.disabled ? deriveStatus.textContent : "Derive wallet from the reviewed input";
+    }
+    const msig = document.getElementById("msig-go");
+    if (msig && msigReadiness) {
+      const started = hasEnteredData(document.getElementById("msig-card"));
+      const message = msig.disabled
+        ? (started ? "Complete valid co-signer keys to derive." : "Add each co-signer public key to begin.")
+        : "Inputs valid · ready to derive.";
+      if (msigReadiness.textContent !== message) msigReadiness.textContent = message;
+      msigReadiness.classList.toggle("is-ready", !msig.disabled);
+      msig.setAttribute("aria-describedby", "msig-script-warning msig-readiness");
+      msig.title = msig.disabled ? msigReadiness.textContent : "Derive multisig from the reviewed keys";
+    }
+    document.querySelectorAll(".err").forEach((error) => {
+      error.setAttribute("role", "alert");
+      error.setAttribute("aria-live", "assertive");
+    });
+    syncWorkflowGuide();
+  };
+
+  let resultWasPresent = hasResults();
+  const resultObserver = new MutationObserver(() => {
+    const resultIsPresent = hasResults();
+    if (resultIsPresent && !resultWasPresent) announce("Results ready. Review every value before exporting.");
+    resultWasPresent = resultIsPresent;
+    syncActionHelp();
+  });
+  [app, output, psbtOutput].filter(Boolean).forEach((node) => resultObserver.observe(node, {
+    subtree: true,
+    childList: true,
+    attributes: true,
+    attributeFilter: ["hidden", "disabled", "aria-disabled", "aria-pressed"],
+  }));
+  document.addEventListener("input", syncActionHelp);
+  document.addEventListener("change", syncActionHelp);
+  document.addEventListener("click", (event) => {
+    const control = event.target.closest?.("button, a");
+    if (!control) return;
+    if (control.matches(".download-html")) announce("Offline HTML download started.");
+    if (control.matches(".save-recovery-sheet, .save-wallet-dat")) announce("Export prepared. Store it securely.");
+    if (control.matches("#wipe, #msig-wipe, #psbt-wipe")) window.setTimeout(() => announce("Session fields cleared."), 0);
+    if (control.matches("#go, #msig-go, #psbt-go") && !control.disabled) {
+      const panel = control.closest("#calc-card, #msig-card, #psbt-card");
+      panel?.setAttribute("aria-busy", "true");
+      window.setTimeout(() => panel?.removeAttribute("aria-busy"), 320);
+    }
+  });
+  syncActionHelp();
 
   const privacyRoots = ["calc-card", "msig-card", "psbt-card", "out", "psbt-out"]
     .map((id) => document.getElementById(id))
