@@ -715,7 +715,7 @@ test("header theme toggle cycles dark, light, and OS themes without a flash", ()
   assert.match(appSource, /hodlInitSecretFieldAutoClear\(\);\s*hodlInitTheme\(\);/);
   assert.match(css, /:root\[data-theme="light"\] \{\s*color-scheme: light;/);
   assert.match(css, /@media print \{\s*:root, :root\[data-theme\] \{/);
-  assert.match(css, /\.download-controls \.theme-toggle \{ flex: 0 0 40px; width: 40px; align-self: center; \}/);
+  assert.match(css, /\.download-controls > \.theme-toggle \{ flex: 0 0 40px; width: 40px; align-self: center; \}/);
   assert.match(template, /localStorage\.getItem\("entropylab-palette"\)/);
   assert.match(template, /\^\(aurora\|tide\|grove\|orchid\)\$/);
   assert.match(uiShell, /const paletteStorageKey = "entropylab-palette"/);
@@ -954,8 +954,13 @@ test("internationalization stays offline, persistent, dynamic, and RTL-aware", (
 
 test("presentation mode, safety review, and destructive confirmation remain accessible", () => {
   assert.match(template, /id="privacy-toggle"[^>]*aria-label="Enable presentation mode"[^>]*aria-pressed="false"/);
+  assert.match(template, /class="control-label privacy-label">Hide values<\/span>/);
   assert.match(css, /\.privacy-toggle \{[^}]*display: inline-flex;[^}]*white-space: nowrap;/s);
+  assert.match(css, /\.header-menu-actions \.header-button \{[^}]*display: flex; align-items: center;/s);
+  assert.match(css, /\.header-menu-actions :is\(\.privacy-toggle, \.theme-toggle\) \{[^}]*width: 100%; min-width: 0;/s);
+  assert.match(css, /\.download-controls > \.privacy-toggle \{ flex: 0 0 40px;/);
   assert.match(uiShell, /element\.inert = enabled/);
+  assert.match(uiShell, /enabled \? "Show values" : "Hide values"/);
   assert.match(uiShell, /event\.key === "Escape"/);
   assert.match(uiShell, /className = "safety-center no-print"/);
   assert.match(uiShell, /#delete-key, #delete-msig/);

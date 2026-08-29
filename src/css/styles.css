@@ -578,7 +578,7 @@ td { border-top: 1px solid var(--border); padding: 8px; vertical-align: top; fon
 .download-controls .btn:is(.download-html, .github-repo-link) { flex: 0 0 auto; }
 /* Square it off against the 40px header controls; the shared keyboard-toggle
    base is 44px wide and stays that way everywhere else in the app. */
-.download-controls .theme-toggle { flex: 0 0 40px; width: 40px; align-self: center; }
+.download-controls > .theme-toggle { flex: 0 0 40px; width: 40px; align-self: center; }
 .theme-toggle svg { display: none; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .theme-toggle[data-theme-mode="dark"] .theme-icon-dark, .theme-toggle[data-theme-mode="light"] .theme-icon-light, .theme-toggle[data-theme-mode="system"] .theme-icon-system { display: block; }
 .btn:is(.download-html, .save-recovery-sheet, .save-wallet-dat) {
@@ -1398,12 +1398,13 @@ button, a, input, textarea, select, .card, .custom-select-list {
 }
 .header-menu-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 0 4px 10px; border-bottom: 1px solid var(--border); }
 .header-menu-actions .header-button {
-  width: 100%; min-height: 40px; margin: 0; padding: 0 9px; justify-content: flex-start; gap: 7px;
+  box-sizing: border-box; width: 100%; min-width: 0; min-height: 40px; display: flex; align-items: center;
+  margin: 0; padding: 0 9px; justify-content: flex-start; gap: 7px;
   border: 1px solid var(--border); border-radius: 9px; background: var(--surface-2); color: var(--muted); font-size: 11px;
 }
 .header-menu-actions .header-button:hover { border-color: var(--faint); color: var(--fg); }
-.header-menu-actions .theme-toggle { flex: 1 1 auto; align-self: auto; }
-.header-menu-actions .control-label { display: inline; }
+.header-menu-actions :is(.privacy-toggle, .theme-toggle) { flex: 1 1 auto; width: 100%; min-width: 0; align-self: auto; }
+.header-menu-actions .control-label { position: static; min-width: 0; display: inline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .language-picker { display: grid; gap: 8px; padding: 5px 4px 10px; border-bottom: 1px solid var(--border); }
 .language-picker > span { padding-inline: 4px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .header-menu .language-picker select {
@@ -1596,7 +1597,7 @@ textarea:focus, select:focus, input:not([type="radio"]):not([type="checkbox"]):f
   .hero { padding-top: 36px; }
 }
 @media (max-width: 719px) {
-  .download-controls .privacy-toggle { flex: 0 0 40px; width: 40px; padding: 0; justify-content: center; }
+  .download-controls > .privacy-toggle { flex: 0 0 40px; width: 40px; padding: 0; justify-content: center; }
   .header-more > summary { width: 40px; padding: 0; }
   .header-menu .control-label, .header-menu .site-version-tag { display: inline; }
   .download-controls .header-menu .github-repo-link { flex: 1 1 auto; width: 100%; padding: 0 10px; justify-content: flex-start; }

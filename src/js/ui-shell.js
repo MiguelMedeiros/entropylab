@@ -231,7 +231,7 @@
     privacyButton?.setAttribute("title", enabled
       ? "Private values are hidden. Press Escape to exit."
       : "Hide sensitive values while sharing the screen");
-    if (privacyLabel) privacyLabel.textContent = enabled ? "Show data" : "Presentation";
+    if (privacyLabel) privacyLabel.textContent = enabled ? "Show values" : "Hide values";
     privacyRoots.forEach((element) => {
       element.inert = enabled;
       if (enabled) element.setAttribute("aria-hidden", "true");
