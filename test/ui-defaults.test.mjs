@@ -913,6 +913,7 @@ test("production keeps the canonical workbench shell", () => {
 
 test("presentation mode, safety review, and destructive confirmation remain accessible", () => {
   assert.match(template, /id="privacy-toggle"[^>]*aria-label="Enable presentation mode"[^>]*aria-pressed="false"/);
+  assert.match(css, /\.privacy-toggle \{[^}]*display: inline-flex;[^}]*white-space: nowrap;/s);
   assert.match(uiShell, /element\.inert = enabled/);
   assert.match(uiShell, /event\.key === "Escape"/);
   assert.match(uiShell, /className = "safety-center no-print"/);
