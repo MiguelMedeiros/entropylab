@@ -4,7 +4,7 @@
 
 ![EntropyLab interface presented in a dark, security-focused workspace](assets/readme-hero.jpg)
 
-[Try it online](https://entropylab.online) · [Download a release](https://github.com/w-s-bitcoin/entropylab/releases) · [Read the documentation](DOCUMENTATION.md) · [Security](SECURITY.md)
+[Open the live UX preview](https://miguelmedeiros.github.io/entropylab/) · [Official site](https://entropylab.online) · [Download a release](https://github.com/w-s-bitcoin/entropylab/releases) · [Read the documentation](DOCUMENTATION.md) · [Security](SECURITY.md)
 
 EntropyLab is a self-contained Bitcoin key and wallet calculator for offline,
 air-gapped use. Bring your own dice rolls, coin flips, cards, entropy, seed
