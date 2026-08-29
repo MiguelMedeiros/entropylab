@@ -45,8 +45,8 @@ test("every enabled button uses shared momentary press feedback", () => {
   assert.match(css, /button:not\(:disabled\):active \{[\s\S]*?background: var\(--selection-accent\) !important;[\s\S]*?color: var\(--selection-fg\) !important;[\s\S]*?border-color: var\(--selection-accent\) !important;/);
   assert.match(css, /button:not\(:disabled\):active \* \{ color: inherit !important; \}/);
   const workbenchLayer = css.slice(css.indexOf("/* Entropy-inspired workbench layer."));
-  assert.match(workbenchLayer, /--selection-accent: #eee9df;/);
-  assert.match(workbenchLayer, /--selection-fg: #151915;/);
+  assert.match(workbenchLayer, /--selection-accent: #f4f7fb;/);
+  assert.match(workbenchLayer, /--selection-fg: #101827;/);
 });
 
 test("all wallet network selectors enable and default to mainnet", () => {
@@ -715,6 +715,17 @@ test("header theme toggle cycles dark, light, and OS themes without a flash", ()
   assert.match(css, /:root\[data-theme="light"\] \{\s*color-scheme: light;/);
   assert.match(css, /@media print \{\s*:root, :root\[data-theme\] \{/);
   assert.match(css, /\.download-controls \.theme-toggle \{ flex: 0 0 40px; width: 40px; align-self: center; \}/);
+  assert.match(template, /localStorage\.getItem\("entropylab-palette"\)/);
+  assert.match(template, /\^\(aurora\|tide\|grove\|orchid\)\$/);
+  assert.match(uiShell, /const paletteStorageKey = "entropylab-palette"/);
+  for (const palette of ["aurora", "tide", "grove", "orchid"]) {
+    assert.match(uiShell, new RegExp(`\\["${palette}",`));
+  }
+  assert.match(uiShell, /role="radiogroup" aria-labelledby="palette-picker-label"/);
+  assert.match(uiShell, /button\.setAttribute\("aria-checked", String\(selected\)\)/);
+  assert.match(uiShell, /button\.tabIndex = selected \? 0 : -1/);
+  assert.match(uiShell, /const directions = \["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"\]/);
+  assert.match(appSource, /meta\.content = getComputedStyle\(document\.documentElement\)\.getPropertyValue\("--bg"\)\.trim\(\)/);
 });
 
 test("the site header is fixed, carries the logo, and holds the version, download, and theme controls", () => {
@@ -843,6 +854,7 @@ test("narrow screens keep the fixed header on one row by hiding control labels",
   assert.match(uiShell, /more\.className = "header-more"/);
   assert.match(uiShell, /menu\.append\(headerVersion\)/);
   assert.match(uiShell, /menu\.append\(githubLink\)/);
+  assert.match(css, /\.download-controls \.header-menu \.github-repo-link \{ flex: 1 1 auto; width: 100%; padding: 0 10px; justify-content: flex-start; \}/);
   assert.doesNotMatch(css, /\.download-controls \.github-repo-link \{ display: none !important; \}/);
 });
 
@@ -975,8 +987,19 @@ test("workbench accent pairs meet WCAG AA contrast", () => {
     const values = [luminance(left), luminance(right)].sort((a, b) => b - a);
     return (values[0] + 0.05) / (values[1] + 0.05);
   };
-  assert.ok(contrast("#b04c28", "#f3efe5") >= 4.5);
-  assert.ok(contrast("#ffffff", "#b04c28") >= 4.5);
-  assert.ok(contrast("#d87851", "#10130f") >= 4.5);
-  assert.ok(contrast("#10130f", "#d87851") >= 4.5);
+  const palettes = [
+    ["#0b1017", "#f4f7fb", "#69a7ff", "#07111f"],
+    ["#f5f7fb", "#172033", "#2563eb", "#ffffff"],
+    ["#07181b", "#ecfeff", "#42d6c8", "#05201e"],
+    ["#f2fbfa", "#133236", "#087f74", "#ffffff"],
+    ["#0a1510", "#f1f8f3", "#72d88a", "#071b0d"],
+    ["#f4faf5", "#182d20", "#2f7d45", "#ffffff"],
+    ["#130f1b", "#f7f2ff", "#b99cff", "#171021"],
+    ["#faf7ff", "#2b1d3a", "#7445d3", "#ffffff"],
+  ];
+  for (const [background, foreground, accent, accentContrast] of palettes) {
+    assert.ok(contrast(background, foreground) >= 4.5);
+    assert.ok(contrast(background, accent) >= 4.5);
+    assert.ok(contrast(accent, accentContrast) >= 4.5);
+  }
 });

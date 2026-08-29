@@ -8139,7 +8139,7 @@ function hodlApplyTheme(mode) {
     toggle.setAttribute("aria-label", `Theme: ${mode}. Switch to ${next}`);
   }
   let meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.content = light ? "#ffffff" : "#000000";
+  if (meta) meta.content = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim() || (light ? "#ffffff" : "#000000");
 }
 function hodlInitTheme() {
   hodlApplyTheme(hodlReadThemeMode());

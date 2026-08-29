@@ -40,6 +40,59 @@
       </summary>
       <div class="header-menu" aria-label="Project information"></div>`;
     const menu = more.querySelector(".header-menu");
+    const paletteStorageKey = "entropylab-palette";
+    const palettes = [
+      ["aurora", "Aurora"],
+      ["tide", "Tide"],
+      ["grove", "Grove"],
+      ["orchid", "Orchid"],
+    ];
+    let selectedPalette = "aurora";
+    try {
+      const storedPalette = localStorage.getItem(paletteStorageKey);
+      if (palettes.some(([id]) => id === storedPalette)) selectedPalette = storedPalette;
+    } catch (e) {}
+    const palettePicker = document.createElement("div");
+    palettePicker.className = "palette-picker";
+    palettePicker.innerHTML = `
+      <span class="palette-picker-label" id="palette-picker-label">Color palette</span>
+      <div class="palette-options" role="radiogroup" aria-labelledby="palette-picker-label">
+        ${palettes.map(([id, label]) => `<button type="button" role="radio" data-palette-choice="${id}" aria-checked="false"><span class="palette-swatch" aria-hidden="true"></span><span>${label}</span></button>`).join("")}
+      </div>
+      <span class="sr-only" id="palette-status" aria-live="polite"></span>`;
+    const applyPalette = (palette, announceChange = false) => {
+      if (!palettes.some(([id]) => id === palette)) palette = "aurora";
+      document.documentElement.dataset.palette = palette;
+      palettePicker.querySelectorAll("[data-palette-choice]").forEach((button) => {
+        const selected = button.dataset.paletteChoice === palette;
+        button.setAttribute("aria-checked", String(selected));
+        button.tabIndex = selected ? 0 : -1;
+      });
+      try { localStorage.setItem(paletteStorageKey, palette); } catch (e) {}
+      const label = palettes.find(([id]) => id === palette)?.[1] || "Aurora";
+      if (announceChange) palettePicker.querySelector("#palette-status").textContent = `${label} palette selected`;
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
+    };
+    palettePicker.addEventListener("click", (event) => {
+      const button = event.target.closest?.("[data-palette-choice]");
+      if (button) applyPalette(button.dataset.paletteChoice, true);
+    });
+    palettePicker.addEventListener("keydown", (event) => {
+      const directions = ["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"];
+      if (!directions.includes(event.key)) return;
+      const buttons = [...palettePicker.querySelectorAll("[data-palette-choice]")];
+      const current = event.target.closest?.("[data-palette-choice]");
+      const currentIndex = buttons.indexOf(current);
+      if (currentIndex < 0) return;
+      event.preventDefault();
+      const offset = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+      const next = buttons[(currentIndex + offset + buttons.length) % buttons.length];
+      applyPalette(next.dataset.paletteChoice, true);
+      next.focus();
+    });
+    menu.append(palettePicker);
+    applyPalette(selectedPalette);
     if (headerVersion) menu.append(headerVersion);
     if (githubLink) menu.append(githubLink);
     headerControls.append(more);

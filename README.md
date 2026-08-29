@@ -43,6 +43,8 @@ Official website: [entropylab.online](https://entropylab.online)
 - Guides the offline workflow through choose, input, review, and export stages,
   with contextual readiness messages, keyboard-visible focus, mobile-friendly
   controls, and reduced-motion support.
+- Offers persistent Aurora, Tide, Grove, and Orchid color palettes independently
+  of the dark, light, or operating-system appearance mode.
 - Exports a Bitcoin Core `wallet.dat` (SQLite descriptor wallet) with every
   derived output descriptor already imported — receive and change for each
   script type, active and ready for address generation. The default download
