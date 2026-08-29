@@ -54,6 +54,7 @@
     ["Keys", "Chaves", "Claves", "密钥", "कुंजियाँ", "المفاتيح", "Clés", "Schlüssel", "鍵"],
     ["Add another key", "Adicionar outra chave", "Añadir otra clave", "添加另一把密钥", "एक और कुंजी जोड़ें", "أضف مفتاحًا آخر", "Ajouter une autre clé", "Weiteren Schlüssel hinzufügen", "鍵を追加"],
     ["Delete Key", "Excluir chave", "Eliminar clave", "删除密钥", "कुंजी हटाएँ", "حذف المفتاح", "Supprimer la clé", "Schlüssel löschen", "鍵を削除"],
+    ["Input method", "Método de entrada", "Método de entrada", "输入方式", "इनपुट विधि", "طريقة الإدخال", "Méthode de saisie", "Eingabemethode", "入力方法"],
     ["Dice rolls", "Lançamentos de dados", "Tiradas de dados", "掷骰结果", "पासे के परिणाम", "رميات النرد", "Lancers de dés", "Würfelwürfe", "サイコロ"],
     ["Cards", "Cartas", "Cartas", "纸牌", "ताश", "البطاقات", "Cartes", "Karten", "カード"],
     ["Number bases", "Bases numéricas", "Bases numéricas", "进制", "संख्या आधार", "أنظمة الأعداد", "Bases numériques", "Zahlensysteme", "基数変換"],

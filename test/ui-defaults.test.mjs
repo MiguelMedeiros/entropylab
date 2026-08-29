@@ -588,10 +588,16 @@ test("multisig consistently uses derive for its heading and action", () => {
   assert.match(app, /let\{network,count,addressStart,n,m,kind,legacyStandard,nodes,xpubs,keyTokens,accountSummary,accountWarning\}=hodlValidatedMsigInputs\(\)/);
 });
 
-test("key and multisig add controls stay pinned to the right of their tab strips", () => {
-  assert.match(css, /\.key-tab-strip \{ display: flex; align-items: flex-end; min-width: 0; margin-top: 12px; \}/);
-  assert.match(css, /\.key-tabs \{\s*display: flex;[^}]*flex: 1 1 auto; min-width: 0;/s);
-  assert.match(css, /\.add-item-control \{ position: relative; display: inline-flex; flex: 0 0 auto; \}/);
+test("key and multisig managers use labeled actions and compact tab trays", () => {
+  for (const markup of [template, appSource]) {
+    assert.match(markup, /class="key-tab-strip"[\s\S]*class="key-manager-actions"[\s\S]*id="delete-key"[\s\S]*id="add-key"[\s\S]*<span>Add key<\/span>/);
+    assert.match(markup, /class="key-tab-strip"[\s\S]*class="key-manager-actions"[\s\S]*id="delete-msig"[\s\S]*id="add-msig"[\s\S]*<span>Add multisig<\/span>/);
+    assert.match(markup, /class="label input-mode-label">Input method<\/p>/);
+    assert.doesNotMatch(markup, /add-item-tooltip/);
+  }
+  assert.match(css, /\.key-manager-actions \{[^}]*display: flex; align-items: center; justify-content: flex-end;[^}]*gap: 6px;[^}]*\}/);
+  assert.match(css, /\.key-tab-strip \{[\s\S]*border: 1px solid var\(--border\); border-radius: 12px; background: var\(--surface\);[\s\S]*\}/);
+  assert.match(css, /\.key-manager-actions \.delete-key:disabled \{ display: none; \}/);
 });
 
 test("seed-entry tools keep a square keyboard toggle and a block note on narrow screens", () => {
@@ -601,10 +607,10 @@ test("seed-entry tools keep a square keyboard toggle and a block note on narrow 
   );
 });
 
-test("multisig heading spans beneath the delete action on narrow screens", () => {
+test("input methods remain a compact horizontal scroller on narrow screens", () => {
   assert.match(
     css,
-    /@media \(max-width: 520px\)[\s\S]*\.key-panel-head \{ display: grid; grid-template-columns: minmax\(0, 1fr\) auto; \}[\s\S]*\.key-panel-head > div:first-child \{ grid-column: 1 \/ -1; grid-row: 2; width: 100%; \}[\s\S]*\.key-panel-head > \.delete-key \{ grid-column: 2; grid-row: 1; justify-self: end; \}/,
+    /@media \(max-width: 640px\)[\s\S]*#modes\.segmented-control, #modes\.segmented-control\.is-stacked \{ display: flex; flex-flow: row nowrap; gap: 0; \}[\s\S]*#modes\.segmented-control\.is-stacked > \.tab \{ width: auto; margin-block-start: 0; white-space: nowrap; \}/,
   );
 });
 
@@ -949,7 +955,7 @@ test("internationalization stays offline, persistent, dynamic, and RTL-aware", (
   assert.doesNotMatch(i18n, /\b(?:fetch|XMLHttpRequest|WebSocket)\b/);
   assert.match(css, /\.language-picker \{/);
   assert.match(css, /:root\[dir="rtl"\] \.header-menu/);
-  assert.match(css, /:root\[dir="rtl"\] \.add-item-tooltip/);
+  assert.doesNotMatch(appSource, /add-item-tooltip/);
 });
 
 test("presentation mode, safety review, and destructive confirmation remain accessible", () => {

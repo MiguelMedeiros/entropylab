@@ -56,12 +56,18 @@
     <div class="row no-print segmented-control" id="workspace" role="group" aria-label="Workspace"></div>
     <section class="key-manager no-print" id="key-manager">
       <div class="key-manager-head"><h2>Keys</h2></div>
-      <div class="key-tab-strip"><div class="key-tabs" id="key-tabs" role="tablist" aria-label="Keys"></div><div class="add-item-control"><button class="add-key" id="add-key" type="button" aria-label="Add key" aria-describedby="add-key-tooltip">+</button><span class="add-item-tooltip" id="add-key-tooltip" role="tooltip">Add another key</span></div></div>
+      <div class="key-tab-strip">
+        <div class="key-tabs" id="key-tabs" role="tablist" aria-label="Keys"></div>
+        <div class="key-manager-actions">
+          <button class="btn delete-key" id="delete-key" type="button" aria-label="Delete current key" disabled>Delete Key</button>
+          <button class="btn secondary add-key" id="add-key" type="button" aria-label="Add key"><span class="add-key-symbol" aria-hidden="true">+</span><span>Add key</span></button>
+        </div>
+      </div>
     </section>
     <section class="card no-print" id="calc-card" role="tabpanel" hidden>
       <div class="key-panel-head">
+        <p class="label input-mode-label">Input method</p>
         <div class="row segmented-control" id="modes" role="group" aria-label="Key input mode"><button class="tab active" aria-pressed="true">Dice rolls</button><button class="tab" aria-pressed="false">Cards</button><button class="tab" aria-pressed="false">Number bases</button><button class="tab" aria-pressed="false">Seed phrase</button><button class="tab" aria-pressed="false">Private key</button></div>
-        <button class="btn delete-key" id="delete-key" type="button" aria-label="Delete current key" disabled>Delete Key</button>
       </div>
       <section class="seed-length-control" id="seed-length" aria-labelledby="seed-length-label">
         <p class="label" id="seed-length-label">Seed phrase length</p>
@@ -174,12 +180,17 @@ words, pick one of the checksum words.</span></span>
     </section>
     <section class="key-manager no-print" id="msig-manager" hidden="">
       <div class="key-manager-head"><h2>Multisigs</h2></div>
-      <div class="key-tab-strip"><div class="key-tabs" id="msig-tabs" role="tablist" aria-label="Multisigs"></div><div class="add-item-control"><button class="add-key" id="add-msig" type="button" aria-label="Add multisig" aria-describedby="add-msig-tooltip">+</button><span class="add-item-tooltip" id="add-msig-tooltip" role="tooltip">Add another multisig</span></div></div>
+      <div class="key-tab-strip">
+        <div class="key-tabs" id="msig-tabs" role="tablist" aria-label="Multisigs"></div>
+        <div class="key-manager-actions">
+          <button class="btn delete-key" id="delete-msig" type="button" aria-label="Delete current multisig" disabled>Delete Multisig</button>
+          <button class="btn secondary add-key" id="add-msig" type="button" aria-label="Add multisig"><span class="add-key-symbol" aria-hidden="true">+</span><span>Add multisig</span></button>
+        </div>
+      </div>
     </section>
     <section class="card no-print" id="msig-card" role="tabpanel" hidden="">
       <div class="key-panel-head">
         <div><div class="kicker">Multiple keys, one wallet</div><h2>Derive a multisig wallet</h2></div>
-        <button class="btn delete-key" id="delete-msig" type="button" aria-label="Delete current multisig" disabled>Delete Multisig</button>
       </div>
       <p class="muted msig-intro">Combine extended public keys into a multisignature wallet. Paste each key origin and extended public key as exported by its signer: <span class="mono">[fingerprint/48h/0h/0h/2h]xpub…</span>. Private keys are not needed. The derived addresses can receive bitcoin, and spending requires the configured number of signatures.</p>
       <div class="msig-threshold-labels">
