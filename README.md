@@ -40,9 +40,9 @@ Official website: [entropylab.online](https://entropylab.online)
 - Includes a presentation mode that temporarily obscures and disables visible
   secret-bearing panels while the screen is shared. This is a visual safeguard,
   not a substitute for clearing the session or using an air-gapped computer.
-- Guides the offline workflow through choose, input, review, and export stages,
-  with contextual readiness messages, keyboard-visible focus, mobile-friendly
-  controls, and reduced-motion support.
+- Keeps the choose, input, review, and export path visible in the header and
+  follows the section currently in view, with contextual readiness messages,
+  keyboard-visible focus, mobile-friendly controls, and reduced-motion support.
 - Offers persistent Aurora, Tide, Grove, and Orchid color palettes independently
   of the dark, light, or operating-system appearance mode.
 - Exports a Bitcoin Core `wallet.dat` (SQLite descriptor wallet) with every

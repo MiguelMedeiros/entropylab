@@ -809,8 +809,10 @@ test("the canonical hero explains the primary task before the workbench", () => 
   assert.match(template, /<h1 id="page-title">See entropy become a Bitcoin wallet\.<\/h1>/);
   assert.match(template, /Bring dice rolls, cards, a seed phrase, or a private key/);
   assert.ok(template.indexOf('class="hero"') < template.indexOf('id="workspace"'));
-  assert.match(css, /\.hero \{[\s\S]*?grid-template-columns:/);
-  assert.match(css, /\.hero h1 \{[\s\S]*?font-size: clamp\(2\.8rem, 5vw, 4\.8rem\)/);
+  assert.match(css, /body \{ background-image: none; \}/);
+  assert.match(css, /\.hero \{\s*display: block; max-width: 880px;/);
+  assert.match(css, /\.hero h1 \{[\s\S]*?font-size: clamp\(2\.65rem, 5vw, 4rem\)/);
+  assert.match(css, /\.hero-note \{[\s\S]*?border-top: 1px solid var\(--border\);/);
   assert.match(uiShell, /className = "hero-actions no-print"/);
   assert.match(uiShell, /href="#workspace">Start with test data<\/a>/);
 });
@@ -954,10 +956,19 @@ test("long workflows expose readiness and dock actions only after engagement", (
 });
 
 test("guided workflow, empty states, feedback, and errors explain the next action", () => {
-  for (const step of ["choose", "input", "review", "export"]) {
-    assert.match(uiShell, new RegExp(`data-workflow-step="${step}"`));
+  for (const [step, label] of [["choose", "Choose"], ["input", "Input"], ["review", "Review"], ["export", "Export"]]) {
+    assert.match(uiShell, new RegExp(`\\["${step}", "${label}",`));
   }
   assert.match(uiShell, /const syncWorkflowGuide/);
+  assert.match(uiShell, /headerControls\.before\(workflowGuide\)/);
+  assert.match(uiShell, /const visibleWorkflowStep/);
+  assert.match(uiShell, /\(window\.innerHeight - headerBottom\) \* \.72/);
+  assert.match(uiShell, /if \(hasResults\(\) && output/);
+  assert.match(uiShell, /document\.addEventListener\("scroll", scheduleWorkflowSync, \{ passive: true \}\)/);
+  assert.match(uiShell, /if \(position\.textContent !== positionText\) position\.textContent = positionText/);
+  assert.match(uiShell, /data-workflow-current/);
+  assert.doesNotMatch(uiShell, /class="workflow-current" aria-hidden/);
+  assert.match(css, /\.workflow-guide \{ flex: 1 1 400px;/);
   assert.match(uiShell, /data-empty-label/);
   assert.match(uiShell, /className = "action-toast no-print"/);
   assert.match(uiShell, /Results ready\. Review every value before exporting\./);
