@@ -42,12 +42,11 @@ test("optional BIP39 passphrase placeholders explain that blank means none", () 
   }
 });
 
-test("every enabled button uses shared momentary press feedback", () => {
-  assert.match(css, /button:not\(:disabled\):active \{[\s\S]*?background: var\(--selection-accent\) !important;[\s\S]*?color: var\(--selection-fg\) !important;[\s\S]*?border-color: var\(--selection-accent\) !important;/);
-  assert.match(css, /button:not\(:disabled\):active \* \{ color: inherit !important; \}/);
-  const workbenchLayer = css.slice(css.indexOf("/* Entropy-inspired workbench layer."));
-  assert.match(workbenchLayer, /--selection-accent: #f4f7fb;/);
-  assert.match(workbenchLayer, /--selection-fg: #101827;/);
+test("button press feedback preserves the control's colours", () => {
+  const pressedButton = css.match(/button:not\(:disabled\):active \{([^}]*)\}/)?.[1] ?? "";
+  assert.match(pressedButton, /transform: translateY\(1px\) scale\(\.985\);/);
+  assert.doesNotMatch(pressedButton, /(?:background|border-color|color)\s*:/);
+  assert.doesNotMatch(css, /button:not\(:disabled\):active \* \{[^}]*color:/);
 });
 
 test("all wallet network selectors enable and default to mainnet", () => {
