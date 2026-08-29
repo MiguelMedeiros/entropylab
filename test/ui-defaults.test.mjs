@@ -752,7 +752,7 @@ test("the site header is fixed, carries a compact brand, and organizes its contr
   assert.doesNotMatch(css, /^header (\{|h1)/m);
   assert.match(css, /\.site-header \{\s*position: fixed; top: 0; left: 0; right: 0;/);
   assert.match(css, /\.site-header-inner \{[^}]*height: var\(--site-header-height\)/s);
-  assert.match(css, /\.site-header-inner \{[^}]*grid-template-areas: "identity actions" "workflow workflow"/s);
+  assert.match(css, /\.site-header-inner \{[^}]*grid-template-areas: "identity actions"/s);
   assert.match(css, /\.site-identity \{ grid-area: identity;/);
   assert.match(css, /\.site-brand \{[^}]*display: inline-flex; align-items: center;/s);
   assert.match(css, /\.site-logo \{[^}]*width: 38px; height: 38px;/s);
@@ -776,9 +776,9 @@ test("the site header is fixed, carries a compact brand, and organizes its contr
   assert.match(css, /\.wrap \{ max-width: 1000px; margin: 0 auto; padding: calc\(var\(--site-header-height\) \+ 20px\) 16px 64px; \}/);
   assert.match(css, /@media print \{[\s\S]*?\.wrap \{ padding-top: 20px; \}/);
   assert.match(css, /html \{[^}]*scroll-padding-top: calc\(var\(--site-header-height\) \+ 12px\)/);
-  // Controls share one height while the header reserves a separate workflow row.
+  // The header is a single compact row; workflow navigation belongs in the calculator.
   assert.match(css, /\.header-button \{ min-height: 40px; font-size: 14px; \}/);
-  assert.match(css, /--site-header-height: 110px;/);
+  assert.match(css, /--site-header-height: 64px;/);
 });
 
 test("the header brand is code-native and never fetches decorative artwork", () => {
@@ -826,7 +826,7 @@ test("the favicon ships inside the document instead of the assets directory", ()
   assert.doesNotMatch(online, /online-favicon|assets\/favicon\.png/);
 });
 
-test("narrow screens preserve the two-level header without crowding controls", () => {
+test("narrow screens preserve the compact header without crowding controls", () => {
   assert.match(css, /@media \(max-width: 719px\) \{[\s\S]*?\.control-label \{ display: none; \}/);
   // Icon-only buttons match the theme toggle's 40px square.
   assert.match(css, /@media \(max-width: 719px\) \{[\s\S]*?\.download-controls \.btn:is\(\.download-html, \.github-repo-link\) \{ flex: 0 0 40px; width: 40px; padding: 0; justify-content: center; \}/);
@@ -975,23 +975,9 @@ test("long workflows expose readiness and dock actions only after engagement", (
   assert.doesNotMatch(css, /\.current-item-actions, \.psbt-actions \{[^}]*position: sticky/s);
 });
 
-test("guided workflow, empty states, feedback, and errors explain the next action", () => {
-  for (const [step, label] of [["choose", "Workspace"], ["input", "Input"], ["review", "Review"], ["export", "Export"]]) {
-    assert.match(uiShell, new RegExp(`\\["${step}", "${label}",`));
-  }
-  assert.match(uiShell, /const syncWorkflowGuide/);
-  assert.match(uiShell, /headerControls\.before\(workflowGuide\)/);
-  assert.match(uiShell, /const visibleWorkflowStep/);
-  assert.match(uiShell, /\(window\.innerHeight - headerBottom\) \* \.72/);
-  assert.match(uiShell, /if \(hasResults\(\) && output/);
-  assert.match(uiShell, /document\.addEventListener\("scroll", scheduleWorkflowSync, \{ passive: true \}\)/);
-  assert.match(uiShell, /if \(position\.textContent !== positionText\) position\.textContent = positionText/);
-  assert.match(uiShell, /data-workflow-current/);
-  assert.doesNotMatch(uiShell, /class="workflow-current" aria-hidden/);
-  assert.match(css, /\.workflow-guide \{[\s\S]*?grid-area: workflow;[\s\S]*?border-top:/);
-  assert.match(css, /\.workflow-guide ol \{[^}]*grid-template-columns: repeat\(4, minmax\(0, 1fr\)\)/s);
-  assert.match(uiShell, /class="workflow-copy"/);
-  assert.match(uiShell, /<small>\$\{description\}<\/small>/);
+test("the header avoids fake progress while feedback and errors explain the next action", () => {
+  assert.doesNotMatch(uiShell, /workflowGuide|data-workflow-step|syncWorkflowGuide|visibleWorkflowStep/);
+  assert.doesNotMatch(css, /\.workflow-guide|\.workflow-current/);
   assert.match(uiShell, /data-empty-label/);
   assert.match(uiShell, /className = "action-toast no-print"/);
   assert.match(uiShell, /Results ready\. Review every value before exporting\./);

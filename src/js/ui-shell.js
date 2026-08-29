@@ -132,97 +132,12 @@
     heroCopy.append(heroActions);
   }
 
-  const workspace = document.getElementById("workspace");
-  let workflowGuide = null;
-  const workflowSteps = [
-    ["choose", "Workspace", "Pick a workspace"],
-    ["input", "Input", "Add test data"],
-    ["review", "Review", "Check before deriving"],
-    ["export", "Export", "Verify independently"],
-  ];
-  const workflowHost = document.querySelector(".site-header-inner");
-  if (workspace && workflowHost) {
-    workflowGuide = document.createElement("nav");
-    workflowGuide.className = "workflow-guide no-print";
-    workflowGuide.setAttribute("aria-label", "Wallet workflow");
-    workflowGuide.innerHTML = `
-      <span class="workflow-current"><span data-workflow-position>Step 1 of 4</span><strong data-workflow-current>Pick a workspace</strong></span>
-      <ol>
-        ${workflowSteps.map(([step, label, description], index) => `<li data-workflow-step="${step}"><button type="button" title="${description}" aria-label="Step ${index + 1} of 4: ${label}. ${description}"><span>${index + 1}</span><span class="workflow-copy"><strong>${label}</strong><small>${description}</small></span></button></li>`).join("")}
-      </ol>`;
-    if (headerControls) headerControls.before(workflowGuide);
-    else workflowHost.append(workflowGuide);
-  }
-
   const visiblePanel = () => [...document.querySelectorAll("#calc-card, #msig-card, #psbt-card")]
     .find((panel) => !panel.hidden && panel.offsetParent !== null);
   const hasEnteredData = (panel) => [...(panel?.querySelectorAll("textarea, input:not([type='radio']):not([type='checkbox']):not([type='range']):not([type='number'])") || [])]
     .some((field) => String(field.value || "").trim());
   const hasResults = () => [document.getElementById("out"), document.getElementById("psbt-out")]
     .some((output) => output && String(output.textContent || "").trim());
-
-  const workflowTarget = (step) => {
-    const panel = visiblePanel();
-    if (step === "input") return panel || workspace;
-    if (step === "review") return panel?.querySelector(".current-item-actions, .psbt-actions") || panel || workspace;
-    if (step === "export") return panel?.id === "psbt-card" ? document.getElementById("psbt-out") : document.getElementById("out");
-    return workspace;
-  };
-
-  const visibleWorkflowStep = () => {
-    const headerBottom = document.querySelector(".site-header")?.getBoundingClientRect().bottom || 0;
-    const threshold = headerBottom + (window.innerHeight - headerBottom) * .72;
-    let active = 0;
-    const input = workflowTarget("input");
-    const review = workflowTarget("review");
-    const output = workflowTarget("export");
-    if (input && input.getBoundingClientRect().top <= threshold) active = 1;
-    if (review && review.getBoundingClientRect().top <= threshold) active = 2;
-    if (hasResults() && output && output.getBoundingClientRect().top <= threshold) active = 3;
-    return active;
-  };
-
-  const syncWorkflowGuide = () => {
-    if (!workflowGuide) return;
-    const panel = visiblePanel();
-    const primary = panel?.querySelector("#go, #msig-go, #psbt-go");
-    const entered = hasEnteredData(panel);
-    const ready = Boolean(primary && !primary.disabled && entered);
-    const stateProgress = hasResults() ? 3 : ready ? 2 : entered ? 1 : 0;
-    const active = visibleWorkflowStep();
-    const completedThrough = Math.max(active, stateProgress);
-    [...workflowGuide.querySelectorAll("li")].forEach((item, index) => {
-      item.classList.toggle("is-complete", index < completedThrough);
-      item.classList.toggle("is-current", index === active);
-      const button = item.querySelector("button");
-      if (index === active && button.getAttribute("aria-current") !== "step") button.setAttribute("aria-current", "step");
-      else if (index !== active && button.hasAttribute("aria-current")) button.removeAttribute("aria-current");
-    });
-    const position = workflowGuide.querySelector("[data-workflow-position]");
-    const current = workflowGuide.querySelector("[data-workflow-current]");
-    const positionText = `Step ${active + 1} of 4`;
-    const currentText = workflowSteps[active][2];
-    if (position.textContent !== positionText) position.textContent = positionText;
-    if (current.textContent !== currentText) current.textContent = currentText;
-  };
-
-  let workflowFrame = 0;
-  const scheduleWorkflowSync = () => {
-    if (workflowFrame) return;
-    workflowFrame = requestAnimationFrame(() => {
-      workflowFrame = 0;
-      syncWorkflowGuide();
-    });
-  };
-  document.addEventListener("scroll", scheduleWorkflowSync, { passive: true });
-  window.addEventListener("resize", scheduleWorkflowSync);
-
-  workflowGuide?.addEventListener("click", (event) => {
-    const step = event.target.closest?.("[data-workflow-step]")?.dataset.workflowStep;
-    if (!step) return;
-    const target = workflowTarget(step);
-    target?.scrollIntoView({ behavior: "smooth", block: "start" });
-  });
 
   const output = document.getElementById("out");
   const psbtOutput = document.getElementById("psbt-out");
@@ -275,7 +190,6 @@
       error.setAttribute("role", "alert");
       error.setAttribute("aria-live", "assertive");
     });
-    syncWorkflowGuide();
   };
 
   let resultWasPresent = hasResults();

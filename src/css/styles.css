@@ -1247,7 +1247,7 @@ input.bad, textarea.bad { border-color: var(--danger) !important; }
   --scrollbar-thumb: #34445a;
   --scrollbar-thumb-hover: #4e627d;
   --shadow: rgb(1 6 14 / 38%);
-  --site-header-height: 110px;
+  --site-header-height: 64px;
 }
 :root[data-theme="light"] {
   --bg: #f5f7fb;
@@ -1335,8 +1335,7 @@ button, a, input, textarea, select, .card, .custom-select-list {
 .site-header:has(.network-status[data-state="online"]) { border-bottom-color: var(--border); }
 .site-header-inner {
   max-width: 1320px; height: var(--site-header-height); display: grid; align-items: center;
-  grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: 60px 50px;
-  grid-template-areas: "identity actions" "workflow workflow"; column-gap: 24px; row-gap: 0;
+  grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "identity actions"; column-gap: 24px;
 }
 .skip-link {
   position: fixed; top: 8px; left: 50%; z-index: 250; padding: 9px 13px; border-radius: 9px;
@@ -1502,28 +1501,6 @@ button, a, input, textarea, select, .card, .custom-select-list {
   width: min(100%, 660px); margin: 18px 0 26px; padding: 4px; display: grid; grid-template-columns: repeat(3, 1fr);
   border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: none;
 }
-.workflow-guide {
-  grid-area: workflow; width: 100%; min-width: 0; max-width: none; align-self: stretch; margin: 0;
-  display: grid; align-items: center; border-top: 1px solid color-mix(in oklab, var(--border) 72%, transparent);
-}
-.workflow-current { display: none; }
-.workflow-guide ol { width: min(100%, 920px); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin: 0 auto; padding: 0; list-style: none; }
-.workflow-guide li { position: relative; min-width: 0; }
-.workflow-guide li + li::before { content: ""; position: absolute; top: 10px; bottom: 10px; left: 0; width: 1px; background: var(--border); }
-.workflow-guide button {
-  width: 100%; min-height: 40px; display: flex; align-items: center; gap: 9px; padding: 5px 16px;
-  border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: transparent; color: var(--muted); text-align: left;
-}
-.workflow-guide button:hover { background: color-mix(in oklab, var(--surface-2) 72%, transparent); color: var(--fg); }
-.workflow-guide button > span:first-child { width: 23px; height: 23px; display: grid; place-items: center; flex: 0 0 auto; border: 1px solid var(--border); border-radius: 50%; color: var(--faint); font-family: var(--mono); font-size: 9px; transition: color .16s ease, border-color .16s ease, background-color .16s ease; }
-.workflow-copy { min-width: 0; display: grid; gap: 1px; }
-.workflow-guide strong { overflow: hidden; color: inherit; font-size: 11px; font-weight: 760; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
-.workflow-guide small { overflow: hidden; color: var(--faint); font-size: 9px; font-weight: 550; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
-.workflow-guide .is-current button { border-bottom-color: var(--accent); background: color-mix(in oklab, var(--accent) 7%, transparent); color: var(--fg); }
-.workflow-guide .is-current button > span:first-child { border-color: var(--accent); background: var(--accent); color: var(--accent-contrast); }
-.workflow-guide .is-complete button > span:first-child { border-color: var(--ok); color: var(--ok); }
-.workflow-guide .is-complete:not(.is-current) button > span:first-child { font-size: 0; }
-.workflow-guide .is-complete:not(.is-current) button > span:first-child::after { content: "✓"; font-family: var(--sans); font-size: 11px; font-weight: 900; }
 #workspace > .tab { width: 100%; margin: 0 !important; border: 0; border-radius: 11px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 700; }
 #workspace > .tab:is(.active, [aria-pressed="true"]) { background: var(--fg); color: var(--bg); box-shadow: 0 4px 12px var(--shadow); }
 .key-manager { margin-top: 22px; padding: 0 4px; }
@@ -1618,21 +1595,15 @@ textarea:focus, select:focus, input:not([type="radio"]):not([type="checkbox"]):f
   .site-tagline { display: none; }
   .hero { padding-top: 36px; }
 }
-@media (max-width: 1100px) {
-  .workflow-guide button { padding-inline: 12px; }
-}
 @media (max-width: 719px) {
   .download-controls .privacy-toggle { flex: 0 0 40px; width: 40px; padding: 0; justify-content: center; }
   .header-more > summary { width: 40px; padding: 0; }
   .header-menu .control-label, .header-menu .site-version-tag { display: inline; }
   .download-controls .header-menu .github-repo-link { flex: 1 1 auto; width: 100%; padding: 0 10px; justify-content: flex-start; }
   .download-controls { margin-left: 0; }
-  .workflow-guide button { gap: 7px; padding-inline: 9px; }
-  .workflow-guide small { display: none; }
 }
 @media (max-width: 640px) {
-  :root { --site-header-height: 102px; }
-  .site-header-inner { grid-template-rows: 58px 44px; column-gap: 12px; }
+  .site-header-inner { column-gap: 12px; }
   .wrap { padding-left: 16px; padding-right: 16px; padding-bottom: 48px; }
   .hero { padding: 28px 0 12px; }
   .hero h1 { font-size: clamp(2.35rem, 12vw, 3.25rem); }
@@ -1667,20 +1638,11 @@ textarea:focus, select:focus, input:not([type="radio"]):not([type="checkbox"]):f
   .site-title { display: none; }
   .site-identity { gap: 9px; }
   .site-logo { width: 34px; height: 34px; }
-  .workflow-current { gap: 4px; }
-  .workflow-current strong { font-size: 10px; }
   .download-controls { gap: 4px; }
-}
-@media (max-width: 560px) {
-  .workflow-current { min-width: 0; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
-  .workflow-current > span { flex: 0 0 auto; color: var(--accent); font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
-  .workflow-current strong { overflow: hidden; color: var(--fg); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
-  .workflow-guide ol { display: none; }
 }
 @media (max-width: 480px) {
   .site-identity { gap: 10px; }
   .network-status { width: 18px; height: 28px; justify-content: center; padding: 0 0 0 10px; font-size: 0; }
-  .workflow-current > span { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
