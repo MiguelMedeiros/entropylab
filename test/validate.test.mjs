@@ -231,12 +231,13 @@ for (const file of htmlFiles) {
       `${file} favicon does not match assets/favicon.png`,
     );
   });
-  test(`${file} inlines the header logo for both themes`, () => {
+  test(`${file} ships the code-native header mark`, () => {
     const html = read(file);
-    // The downloaded file has no assets/ beside it, so the logo has to travel
-    // inside the document or the fixed header renders empty when air-gapped.
-    assert.match(html, /\.site-logo \{[^}]*background: url\("data:image\/png;base64,[A-Za-z0-9+/=]+"\) center \/ contain no-repeat;/);
-    assert.match(html, /:root\[data-theme="light"\] \.site-logo \{ background-image: url\("data:image\/png;base64,[A-Za-z0-9+/=]+"\); \}/);
+    // The mark is text and CSS, so the downloaded file remains sharp at every
+    // density and does not depend on a theme-specific bitmap asset.
+    assert.match(html, /class="site-logo"[^>]*>E<span><\/span><\/span>/);
+    assert.doesNotMatch(html, /@@LOGO_(?:DARK|LIGHT)@@/);
+    assert.doesNotMatch(html, /\.site-logo \{[^}]*background(?:-image)?: url\(/s);
   });
 }
 

@@ -30,15 +30,16 @@
   const headerControls = document.querySelector(".download-controls");
   const headerVersion = document.querySelector(".site-version");
   const githubLink = headerControls?.querySelector(".github-repo-link");
+  const themeButton = document.getElementById("theme-toggle");
   if (headerControls && (headerVersion || githubLink)) {
     const more = document.createElement("details");
     more.className = "header-more";
     more.innerHTML = `
-      <summary class="header-button" aria-label="Open project information">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"></circle><circle cx="12" cy="12" r="1.5"></circle><circle cx="19" cy="12" r="1.5"></circle></svg>
-        <span class="control-label">More</span>
+      <summary class="header-button" aria-label="Open settings">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 12h2M10 12h10M4 17h7M15 17h5"></path><circle cx="16" cy="7" r="2"></circle><circle cx="8" cy="12" r="2"></circle><circle cx="13" cy="17" r="2"></circle></svg>
+        <span class="control-label">Settings</span>
       </summary>
-      <div class="header-menu" aria-label="Project information"></div>`;
+      <div class="header-menu" aria-label="Settings"></div>`;
     const menu = more.querySelector(".header-menu");
     const paletteStorageKey = "entropylab-palette";
     const palettes = [
@@ -91,6 +92,19 @@
       applyPalette(next.dataset.paletteChoice, true);
       next.focus();
     });
+    const menuActions = document.createElement("div");
+    menuActions.className = "header-menu-actions";
+    if (privacyButton) menuActions.append(privacyButton);
+    if (themeButton) {
+      if (!themeButton.querySelector(".theme-menu-label")) {
+        const themeLabel = document.createElement("span");
+        themeLabel.className = "control-label theme-menu-label";
+        themeLabel.textContent = "Appearance";
+        themeButton.append(themeLabel);
+      }
+      menuActions.append(themeButton);
+    }
+    if (menuActions.childElementCount) menu.append(menuActions);
     menu.append(palettePicker);
     applyPalette(selectedPalette);
     if (headerVersion) menu.append(headerVersion);
@@ -132,9 +146,9 @@
     workflowGuide.className = "workflow-guide no-print";
     workflowGuide.setAttribute("aria-label", "Wallet workflow");
     workflowGuide.innerHTML = `
-      <span class="workflow-current"><span data-workflow-position>1/4</span><strong data-workflow-current>Choose</strong></span>
+      <span class="workflow-current"><span data-workflow-position>Step 1 of 4</span><strong data-workflow-current>Pick a workspace</strong></span>
       <ol>
-        ${workflowSteps.map(([step, label, description], index) => `<li data-workflow-step="${step}"><button type="button" title="${description}" aria-label="Step ${index + 1} of 4: ${label}. ${description}"><span>${index + 1}</span><strong>${label}</strong></button></li>`).join("")}
+        ${workflowSteps.map(([step, label, description], index) => `<li data-workflow-step="${step}"><button type="button" title="${description}" aria-label="Step ${index + 1} of 4: ${label}. ${description}"><span>${index + 1}</span><span class="workflow-copy"><strong>${label}</strong><small>${description}</small></span></button></li>`).join("")}
       </ol>`;
     if (headerControls) headerControls.before(workflowGuide);
     else workflowHost.append(workflowGuide);
@@ -186,8 +200,8 @@
     });
     const position = workflowGuide.querySelector("[data-workflow-position]");
     const current = workflowGuide.querySelector("[data-workflow-current]");
-    const positionText = `${active + 1}/4`;
-    const currentText = workflowSteps[active][1];
+    const positionText = `Step ${active + 1} of 4`;
+    const currentText = workflowSteps[active][2];
     if (position.textContent !== positionText) position.textContent = positionText;
     if (current.textContent !== currentText) current.textContent = currentText;
   };

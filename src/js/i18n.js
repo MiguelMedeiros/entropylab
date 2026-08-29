@@ -22,6 +22,10 @@
     ["Presentation", "Apresentação", "Presentación", "演示", "प्रस्तुति", "العرض", "Présentation", "Präsentation", "プレゼンテーション"],
     ["Show data", "Mostrar dados", "Mostrar datos", "显示数据", "डेटा दिखाएँ", "إظهار البيانات", "Afficher les données", "Daten anzeigen", "データを表示"],
     ["More", "Mais", "Más", "更多", "अधिक", "المزيد", "Plus", "Mehr", "その他"],
+    ["Settings", "Configurações", "Ajustes", "设置", "सेटिंग्स", "الإعدادات", "Réglages", "Einstellungen", "設定"],
+    ["Open settings", "Abrir configurações", "Abrir ajustes", "打开设置", "सेटिंग्स खोलें", "افتح الإعدادات", "Ouvrir les réglages", "Einstellungen öffnen", "設定を開く"],
+    ["Appearance", "Aparência", "Apariencia", "外观", "दिखावट", "المظهر", "Apparence", "Darstellung", "外観"],
+    ["EntropyLab home", "Início do EntropyLab", "Inicio de EntropyLab", "EntropyLab 首页", "EntropyLab मुखपृष्ठ", "صفحة EntropyLab الرئيسية", "Accueil EntropyLab", "EntropyLab-Startseite", "EntropyLabホーム"],
     ["Color palette", "Paleta de cores", "Paleta de colores", "配色", "रंग पैलेट", "لوحة الألوان", "Palette de couleurs", "Farbpalette", "カラーパレット"],
     ["Release", "Versão", "Versión", "版本", "रिलीज़", "الإصدار", "Version", "Version", "リリース"],
     ["(Latest)", "(Mais recente)", "(Más reciente)", "（最新）", "(नवीनतम)", "(الأحدث)", "(Dernière)", "(Neueste)", "（最新）"],
@@ -252,6 +256,8 @@
     }
     match = source.match(/^Step (\d+) of 4: (Choose|Input|Review|Export)\. (.+)$/);
     if (match) return `${match[1]}/4 · ${lookup(match[2], language)} · ${lookup(match[3], language)}`;
+    match = source.match(/^Step (\d+) of 4$/);
+    if (match) return ({"pt-BR": `Etapa ${match[1]} de 4`, es: `Paso ${match[1]} de 4`, "zh-CN": `第 ${match[1]} 步，共 4 步`, hi: `चरण ${match[1]} / 4`, ar: `الخطوة ${match[1]} من 4`, fr: `Étape ${match[1]} sur 4`, de: `Schritt ${match[1]} von 4`, ja: `ステップ${match[1]}/4`})[language];
     match = source.match(/^Key (\d+)$/);
     if (match) return `${lookup("Keys", language)} ${match[1]}`;
     match = source.match(/^(\d+) receive \+ (\d+) change$/);

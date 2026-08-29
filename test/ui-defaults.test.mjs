@@ -702,7 +702,7 @@ test("the layout has a 320px floor that the fixed header shares", () => {
   // The literal appears once among the declarations, in the token itself, so
   // the two floors cannot be set apart. Prose may name the value freely.
   const declarations = css.replace(/\/\*[\s\S]*?\*\//g, "");
-  assert.equal(declarations.match(/320px/g).length, 1);
+  assert.equal(declarations.match(/:\s*320px/g).length, 1);
 });
 
 test("header theme toggle cycles dark, light, and OS themes without a flash", () => {
@@ -729,14 +729,14 @@ test("header theme toggle cycles dark, light, and OS themes without a flash", ()
   assert.match(appSource, /meta\.content = getComputedStyle\(document\.documentElement\)\.getPropertyValue\("--bg"\)\.trim\(\)/);
 });
 
-test("the site header is fixed, carries the logo, and holds the version, download, and theme controls", () => {
+test("the site header is fixed, carries a compact brand, and organizes its controls", () => {
   for (const markup of [template, app]) {
     // The header precedes the page wrapper, so the banners scroll beneath it.
     const header = markup.indexOf('<div class="site-header no-print">');
     const wrapper = markup.indexOf('<div class="wrap">');
     assert.ok(header >= 0, "the fixed site header is missing");
     assert.ok(header < wrapper, "the site header must come before the page wrapper");
-    assert.match(markup, /<span class="site-logo" aria-hidden="true"><\/span>\s*<span class="site-title">EntropyLab<\/span>\s*<span class="site-version">/);
+    assert.match(markup, /<a class="site-brand" href="#btc-calc" aria-label="EntropyLab home">\s*<span class="site-logo" aria-hidden="true">E<span><\/span><\/span>\s*<span class="site-title">EntropyLab<\/span>\s*<\/a>\s*<span class="site-version">/);
     for (const control of [/class="site-version-number">v\{\{VERSION\}\}</, /class="btn secondary download-html header-button"/, /class="btn secondary github-repo-link header-button"/, /id="theme-toggle"/]) {
       assert.match(markup.slice(header, wrapper), control, `the fixed header is missing ${control}`);
     }
@@ -752,14 +752,10 @@ test("the site header is fixed, carries the logo, and holds the version, downloa
   assert.doesNotMatch(css, /^header (\{|h1)/m);
   assert.match(css, /\.site-header \{\s*position: fixed; top: 0; left: 0; right: 0;/);
   assert.match(css, /\.site-header-inner \{[^}]*height: var\(--site-header-height\)/s);
-  // The mark's own art margin supplies the lockup gap, so the flex gap is
-  // cancelled on that side; without this the wordmark drifts 6px further out.
-  assert.match(css, /\.site-logo \{[^}]*margin-right: -6px;/s);
-  // The wordmark shares the h1's display face rather than the control sans.
-  // The wordmark runs to both ends of the ramp rather than tracking --fg, so
-  // each theme has to name its own end.
-  assert.match(css, /\.site-title \{[^}]*font-family: var\(--display\);[^}]*color: #ffffff;/);
-  assert.match(css, /:root\[data-theme="light"\] \.site-title \{ color: #000000; \}/);
+  assert.match(css, /\.site-brand \{[^}]*display: inline-flex; align-items: center;/s);
+  assert.match(css, /\.site-logo \{[^}]*border-radius: 9px;[^}]*font-family: var\(--display\);/s);
+  assert.match(css, /\.site-logo > span \{[^}]*background: var\(--accent\);/s);
+  assert.match(css, /\.site-title \{[^}]*font-family: var\(--sans\);[^}]*color: var\(--fg\);/s);
   assert.match(css, /@media \(max-width: 719px\) \{[\s\S]*?\.site-title \{ font-size: 19px; \}/);
   assert.match(css, /\.site-version \{[^}]*flex: 0 0 auto; display: inline-flex; align-items: baseline; gap: 6px;/s);
   // The version echoes the kicker's accent and weight, but stays far below its
@@ -782,10 +778,9 @@ test("the site header is fixed, carries the logo, and holds the version, downloa
   assert.match(css, /--site-header-height: 52px;/);
 });
 
-test("the header logo is inlined for both themes and never fetched from assets", () => {
-  assert.match(css, /\.site-logo \{[^}]*background: url\("data:image\/png;base64,\/\*@@LOGO_DARK@@\*\/"\) center \/ contain no-repeat;/s);
-  assert.match(css, /:root\[data-theme="light"\] \.site-logo \{ background-image: url\("data:image\/png;base64,\/\*@@LOGO_LIGHT@@\*\/"\); \}/);
-  // No markup copy may point the logo at the hosted assets directory.
+test("the header brand is code-native and never fetches decorative artwork", () => {
+  assert.doesNotMatch(css, /@@LOGO_|assets\/logo-/);
+  assert.doesNotMatch(build, /readBase64|logo-dark|logo-light/);
   for (const markup of [template, app]) {
     assert.doesNotMatch(markup, /online-brand-mark/);
     assert.doesNotMatch(markup, /assets\/entropylab_(dark|light)\.png/);
@@ -855,6 +850,9 @@ test("narrow screens keep the fixed header on one row by hiding control labels",
     assert.match(markup, /class="btn secondary github-repo-link header-button"[^>]*aria-label="View the EntropyLab GitHub repository in a new tab"/);
   }
   assert.match(uiShell, /more\.className = "header-more"/);
+  assert.match(uiShell, /<span class="control-label">Settings<\/span>/);
+  assert.match(uiShell, /menuActions\.append\(privacyButton\)/);
+  assert.match(uiShell, /menuActions\.append\(themeButton\)/);
   assert.match(uiShell, /menu\.append\(headerVersion\)/);
   assert.match(uiShell, /menu\.append\(githubLink\)/);
   assert.match(css, /\.download-controls \.header-menu \.github-repo-link \{ flex: 1 1 auto; width: 100%; padding: 0 10px; justify-content: flex-start; \}/);
@@ -987,7 +985,9 @@ test("guided workflow, empty states, feedback, and errors explain the next actio
   assert.match(uiShell, /if \(position\.textContent !== positionText\) position\.textContent = positionText/);
   assert.match(uiShell, /data-workflow-current/);
   assert.doesNotMatch(uiShell, /class="workflow-current" aria-hidden/);
-  assert.match(css, /\.workflow-guide \{ flex: 1 1 400px;/);
+  assert.match(css, /\.workflow-guide \{ flex: 1 1 580px;/);
+  assert.match(uiShell, /class="workflow-copy"/);
+  assert.match(uiShell, /<small>\$\{description\}<\/small>/);
   assert.match(uiShell, /data-empty-label/);
   assert.match(uiShell, /className = "action-toast no-print"/);
   assert.match(uiShell, /Results ready\. Review every value before exporting\./);

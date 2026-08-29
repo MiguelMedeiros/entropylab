@@ -165,11 +165,11 @@ test("the status tag ships online, sits in the header, and is wired to the build
   // Hung half over the bottom rule, with an opaque fill so the rule stops at
   // the tag's edges instead of striking through the word.
   assert.match(css, /\.network-status \{[^}]*background: var\(--bg\);/s);
-  // It clears the control row, so it stays centred at every width and nothing
-  // in the header has to be dropped to make room for it.
-  const narrow = css.slice(css.indexOf("@media (max-width: 719px)"));
-  assert.doesNotMatch(narrow, /\.network-status \{/);
-  assert.doesNotMatch(narrow, /\.site-version \{ display: none; \}/);
+  // On phones the word becomes the same status dot used by the full chip,
+  // preserving the warning without consuming the navigation row.
+  const phone = css.slice(css.indexOf("@media (max-width: 480px)"));
+  assert.match(phone, /\.network-status \{[^}]*width: 28px;[^}]*height: 28px;[^}]*font-size: 0;/s);
+  assert.match(css, /\.network-status::before \{[^}]*background: currentColor;/s);
   // The old banner's rules went with the banner.
   assert.doesNotMatch(css, /\.network-warning/);
 });

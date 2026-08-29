@@ -371,8 +371,10 @@ if (!ec) throw new Error("#app missing");
 if (!ec.hasAttribute("data-entropylab-shell")) ec.innerHTML = `
   <div class="site-header no-print">
     <div class="site-header-inner">
-      <span class="site-logo" aria-hidden="true"></span>
-      <span class="site-title">EntropyLab</span>
+      <a class="site-brand" href="#btc-calc" aria-label="EntropyLab home">
+        <span class="site-logo" aria-hidden="true">E<span></span></span>
+        <span class="site-title">EntropyLab</span>
+      </a>
       <span class="site-version"><span class="site-version-number">v{{VERSION}}</span> <span class="site-version-tag">(Latest)</span></span>
       <span class="network-status" id="network-status" data-state="online" role="status" aria-label="Network status: online">Online</span>
       <div class="download-controls">

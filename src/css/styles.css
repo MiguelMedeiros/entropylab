@@ -525,16 +525,7 @@ td { border-top: 1px solid var(--border); padding: 8px; vertical-align: top; fon
   display: flex; align-items: center; gap: 6px; height: var(--site-header-height);
   max-width: 1000px; margin: 0 auto; padding: 0 var(--site-header-pad);
 }
-/* Both marks are inlined as data URIs at build time; the light one wins when
-   the light theme sets data-theme on the root element. The negative margin
-   cancels the flex gap on this side only: the art carries 20px of transparent
-   margin per side in a 96px square, so it already supplies ~7.5px of space at
-   the rendered 36px and the 6px gap on top of it read as a hole. */
-.site-logo {
-  flex: 0 0 auto; width: 36px; height: 36px; margin-right: -6px;
-  background: url("data:image/png;base64,/*@@LOGO_DARK@@*/") center / contain no-repeat;
-}
-:root[data-theme="light"] .site-logo { background-image: url("data:image/png;base64,/*@@LOGO_LIGHT@@*/"); }
+.site-logo { flex: 0 0 auto; }
 /* The wordmark takes the h1's display face, so the bar reads as the same brand
    as the page title below it. Pure white and pure black rather than --fg, which
    stops short of both ends: the wordmark wants the full contrast. */
@@ -1341,14 +1332,41 @@ button, a, input, textarea, select, .card, .custom-select-list {
   backdrop-filter: blur(12px);
 }
 .site-header:has(.network-status[data-state="online"]) { border-bottom-color: var(--border); }
-.site-header-inner { max-width: 1280px; }
+.site-header-inner { max-width: 1320px; gap: 12px; }
 .skip-link {
   position: fixed; top: 8px; left: 50%; z-index: 250; padding: 9px 13px; border-radius: 9px;
   background: var(--selection-accent); color: var(--selection-fg); font-size: 13px; font-weight: 800; text-decoration: none;
   transform: translate(-50%, -150%); transition: transform .16s ease;
 }
 .skip-link:focus { transform: translate(-50%, 0); }
-.site-logo { width: 38px; height: 38px; }
+.site-brand {
+  min-width: 0; display: inline-flex; align-items: center; gap: 9px; flex: 0 0 auto;
+  color: var(--fg); text-decoration: none;
+}
+.site-brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 10px; }
+.site-logo {
+  position: relative; width: 32px; height: 32px; margin: 0; display: grid; place-items: center;
+  border: 1px solid color-mix(in oklab, var(--accent) 42%, var(--border)); border-radius: 9px;
+  background: color-mix(in oklab, var(--accent) 9%, var(--surface)) !important; color: var(--fg);
+  font-family: var(--display); font-size: 17px; font-weight: 700; letter-spacing: -.06em;
+}
+.site-logo > span { position: absolute; right: 5px; bottom: 5px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+.site-title { font-family: var(--sans); font-size: 17px; font-weight: 750; letter-spacing: -.025em; color: var(--fg); }
+:root[data-theme="light"] .site-title { color: var(--fg); }
+.network-status {
+  position: static; left: auto; bottom: auto; transform: none; display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 8px; border-color: var(--border); background: var(--surface-2); color: var(--muted) !important;
+  font-size: 10px; letter-spacing: .02em; text-indent: 0; text-transform: none;
+}
+.network-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.network-status[data-state="offline"]::before { background: var(--ok); }
+.network-status[data-state="online"]::before { background: var(--danger); }
+.download-controls { margin-left: 0; gap: 6px; }
+.site-header .download-controls > .download-html {
+  min-height: 38px; padding: 0 12px; border-color: color-mix(in oklab, var(--accent) 34%, var(--border));
+  background: color-mix(in oklab, var(--accent) 9%, var(--surface)); color: var(--fg);
+}
+.site-header .download-controls > .download-html:hover { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 15%, var(--surface)); }
 .privacy-toggle {
   display: inline-flex; align-items: center; justify-content: center;
   flex: 0 0 auto; width: auto; min-width: 40px; gap: 6px; white-space: nowrap; color: var(--muted);
@@ -1360,16 +1378,24 @@ button, a, input, textarea, select, .card, .custom-select-list {
 }
 .header-more { position: relative; flex: 0 0 auto; }
 .header-more > summary {
-  width: auto; min-width: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 0 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); color: var(--muted); cursor: pointer; list-style: none;
+  width: auto; min-width: 40px; min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 0 11px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--muted); cursor: pointer; list-style: none;
 }
 .header-more > summary::-webkit-details-marker { display: none; }
-.header-more > summary svg { width: 20px; height: 20px; fill: currentColor; }
-.header-more[open] > summary { border-color: var(--accent); color: var(--accent); }
+.header-more > summary svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.header-more > summary:hover, .header-more[open] > summary { border-color: var(--border); background: var(--surface-2); color: var(--fg); }
 .header-menu {
-  position: absolute; top: calc(100% + 9px); right: 0; z-index: 60; width: 280px; display: grid; gap: 6px;
+  position: absolute; top: calc(100% + 9px); right: 0; z-index: 60; width: 300px; display: grid; gap: 6px;
   padding: 9px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface); box-shadow: 0 18px 48px rgb(0 0 0 / 38%);
 }
+.header-menu-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 0 4px 10px; border-bottom: 1px solid var(--border); }
+.header-menu-actions .header-button {
+  width: 100%; min-height: 40px; margin: 0; padding: 0 9px; justify-content: flex-start; gap: 7px;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface-2); color: var(--muted); font-size: 11px;
+}
+.header-menu-actions .header-button:hover { border-color: var(--faint); color: var(--fg); }
+.header-menu-actions .theme-toggle { flex: 1 1 auto; align-self: auto; }
+.header-menu-actions .control-label { display: inline; }
 .language-picker { display: grid; gap: 8px; padding: 5px 4px 10px; border-bottom: 1px solid var(--border); }
 .language-picker > span { padding-inline: 4px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .header-menu .language-picker select {
@@ -1466,20 +1492,25 @@ button, a, input, textarea, select, .card, .custom-select-list {
   width: min(100%, 660px); margin: 18px 0 26px; padding: 4px; display: grid; grid-template-columns: repeat(3, 1fr);
   border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: none;
 }
-.workflow-guide { flex: 1 1 400px; min-width: 280px; max-width: 440px; margin: 0 auto; }
+.workflow-guide { flex: 1 1 580px; min-width: 420px; max-width: 650px; margin: 0 auto; }
 .workflow-current { display: none; }
-.workflow-guide ol { display: flex; align-items: center; margin: 0; padding: 0; list-style: none; }
-.workflow-guide li { min-width: 0; display: flex; align-items: center; flex: 1 1 auto; }
-.workflow-guide li:not(:last-child)::after { content: ""; flex: 1 1 14px; min-width: 6px; height: 1px; margin: 0 5px; background: var(--border); }
-.workflow-guide li.is-complete:not(:last-child)::after { background: color-mix(in oklab, var(--ok) 70%, var(--border)); }
-.workflow-guide button { min-height: 36px; display: flex; align-items: center; gap: 6px; padding: 0; border: 0; background: transparent; color: var(--muted); white-space: nowrap; }
-.workflow-guide button > span { width: 22px; height: 22px; display: grid; place-items: center; flex: 0 0 auto; border: 1px solid var(--border); border-radius: 50%; color: var(--faint); font-family: var(--mono); font-size: 9px; transition: color .16s ease, border-color .16s ease, background-color .16s ease; }
-.workflow-guide strong { color: inherit; font-size: 11px; font-weight: 700; }
-.workflow-guide .is-current button { color: var(--fg); }
-.workflow-guide .is-current button > span { border-color: var(--accent); background: var(--accent); color: var(--accent-contrast); }
-.workflow-guide .is-complete button > span { border-color: var(--ok); color: var(--ok); }
-.workflow-guide .is-complete:not(.is-current) button > span { font-size: 0; }
-.workflow-guide .is-complete:not(.is-current) button > span::after { content: "✓"; font-family: var(--sans); font-size: 11px; font-weight: 900; }
+.workflow-guide ol { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin: 0; padding: 0; list-style: none; }
+.workflow-guide li { min-width: 0; }
+.workflow-guide li:not(:last-child)::after { content: none; }
+.workflow-guide button {
+  width: 100%; min-height: 46px; display: flex; align-items: center; gap: 8px; padding: 5px 8px;
+  border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--muted); text-align: left;
+}
+.workflow-guide button:hover { border-color: var(--border); background: var(--surface-2); color: var(--fg); }
+.workflow-guide button > span:first-child { width: 20px; height: 20px; display: grid; place-items: center; flex: 0 0 auto; border: 1px solid var(--border); border-radius: 7px; color: var(--faint); font-family: var(--mono); font-size: 9px; transition: color .16s ease, border-color .16s ease, background-color .16s ease; }
+.workflow-copy { min-width: 0; display: grid; gap: 1px; }
+.workflow-guide strong { overflow: hidden; color: inherit; font-size: 11px; font-weight: 750; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+.workflow-guide small { overflow: hidden; color: var(--faint); font-size: 8px; font-weight: 600; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+.workflow-guide .is-current button { border-color: color-mix(in oklab, var(--accent) 30%, var(--border)); background: color-mix(in oklab, var(--accent) 8%, transparent); color: var(--fg); }
+.workflow-guide .is-current button > span:first-child { border-color: var(--accent); background: var(--accent); color: var(--accent-contrast); }
+.workflow-guide .is-complete button > span:first-child { border-color: var(--ok); color: var(--ok); }
+.workflow-guide .is-complete:not(.is-current) button > span:first-child { font-size: 0; }
+.workflow-guide .is-complete:not(.is-current) button > span:first-child::after { content: "✓"; font-family: var(--sans); font-size: 11px; font-weight: 900; }
 #workspace > .tab { width: 100%; margin: 0 !important; border: 0; border-radius: 11px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 700; }
 #workspace > .tab:is(.active, [aria-pressed="true"]) { background: var(--fg); color: var(--bg); box-shadow: 0 4px 12px var(--shadow); }
 .key-manager { margin-top: 22px; padding: 0 4px; }
@@ -1567,7 +1598,7 @@ textarea:focus, select:focus, input:not([type="radio"]):not([type="checkbox"]):f
 #calc-card:not([hidden]), #msig-card:not([hidden]), #psbt-card:not([hidden]), #out > * { animation: panel-enter .3s cubic-bezier(.2,.8,.2,1) both; }
 .safety-center[open] .safety-details { animation: panel-enter .2s ease-out both; }
 .confirm-dialog[open] { animation: dialog-enter .2s cubic-bezier(.2,.8,.2,1) both; }
-.network-status[data-state="online"] { animation: status-pulse 2.2s ease-in-out infinite; }
+.network-status[data-state="online"] { animation: none; }
 
 @media (max-width: 900px) {
   .wrap { padding-left: 24px; padding-right: 24px; }
@@ -1575,19 +1606,19 @@ textarea:focus, select:focus, input:not([type="radio"]):not([type="checkbox"]):f
   .hero { padding-top: 36px; }
 }
 @media (max-width: 1100px) {
-  .workflow-guide { flex: 0 1 180px; min-width: 132px; max-width: 180px; }
-  .workflow-guide strong { display: none; }
+  .workflow-guide { flex: 1 1 260px; min-width: 180px; max-width: 420px; }
+  .workflow-current { min-width: 0; display: flex; align-items: center; gap: 8px; }
+  .workflow-current > span { flex: 0 0 auto; color: var(--accent); font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+  .workflow-current strong { overflow: hidden; color: var(--fg); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+  .workflow-guide ol { display: none; }
 }
 @media (max-width: 719px) {
   .download-controls .privacy-toggle { flex: 0 0 40px; width: 40px; padding: 0; justify-content: center; }
   .header-more > summary { width: 40px; padding: 0; }
   .header-menu .control-label, .header-menu .site-version-tag { display: inline; }
   .download-controls .header-menu .github-repo-link { flex: 1 1 auto; width: 100%; padding: 0 10px; justify-content: flex-start; }
-  .workflow-guide { flex: 0 0 auto; min-width: 0; max-width: none; margin: 0 0 0 auto; }
-  .workflow-current { display: flex; align-items: center; gap: 6px; color: var(--muted); white-space: nowrap; }
-  .workflow-current > span { color: var(--accent); font-family: var(--mono); font-size: 9px; }
-  .workflow-current strong { display: inline; color: var(--fg); font-size: 11px; }
-  .workflow-guide ol { display: none; }
+  .workflow-guide { flex: 1 1 auto; min-width: 0; max-width: none; margin: 0 auto; }
+  .workflow-current { gap: 6px; white-space: nowrap; }
   .download-controls { margin-left: 0; }
 }
 @media (max-width: 640px) {
@@ -1626,6 +1657,10 @@ textarea:focus, select:focus, input:not([type="radio"]):not([type="checkbox"]):f
   .workflow-current { gap: 4px; }
   .workflow-current strong { font-size: 10px; }
   .download-controls { gap: 4px; }
+}
+@media (max-width: 480px) {
+  .network-status { width: 28px; height: 28px; justify-content: center; padding: 0; font-size: 0; }
+  .workflow-current > span { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
