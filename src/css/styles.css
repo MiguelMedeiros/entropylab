@@ -31,6 +31,11 @@
   --site-header-height: 52px; /* .header-button height plus 6px above and below */
   --site-header-pad: 16px; /* the bar's side padding; the status tag aligns to it */
   --site-min-width: 320px; /* the narrowest layout we lay out for: below this the page scrolls */
+  --motion-fast: 140ms;
+  --motion-base: 220ms;
+  --motion-slow: 320ms;
+  --motion-standard: cubic-bezier(.2, .8, .2, 1);
+  --motion-emphasized: cubic-bezier(.16, 1, .3, 1);
   --display: "Iowan Old Style", Palatino, Georgia, serif;
   /* The card-suit glyphs (♠ ♥ ♦ ♣, U+2660–U+2666) are not covered by every
      default UI font (notably SF Mono on macOS); the named symbol fonts
@@ -1308,14 +1313,26 @@ body { background-image: none; }
 ::selection { background: color-mix(in oklab, var(--accent) 22%, transparent); }
 button, input, textarea, select { -webkit-tap-highlight-color: transparent; }
 button, a, input, textarea, select, .card, .custom-select-list {
-  transition: color .16s ease, background-color .16s ease, border-color .16s ease, box-shadow .16s ease, opacity .16s ease, transform .16s ease;
+  transition: color var(--motion-fast) ease, background-color var(--motion-fast) ease, border-color var(--motion-fast) ease, box-shadow var(--motion-fast) ease, opacity var(--motion-fast) ease, transform var(--motion-fast) ease;
+}
+body, .key-tab-strip, #workspace, .current-item-actions, .psbt-actions,
+.site-logo-flask, .site-logo-liquid, .site-logo circle {
+  transition: color var(--motion-slow) ease, background-color var(--motion-slow) ease, border-color var(--motion-slow) ease, box-shadow var(--motion-slow) ease, fill var(--motion-slow) ease, stroke var(--motion-slow) ease;
+}
+:root.is-theme-changing :is(body, .site-header, .card, .key-tab-strip, #workspace) {
+  transition-duration: var(--motion-slow);
 }
 
 .site-header {
   background: color-mix(in oklab, var(--bg) 96%, transparent);
   border-bottom-color: var(--border);
   backdrop-filter: blur(12px);
-  box-shadow: 0 8px 28px color-mix(in oklab, var(--shadow) 32%, transparent);
+  box-shadow: 0 0 0 transparent;
+  transition: background-color var(--motion-base) ease, border-color var(--motion-base) ease, box-shadow var(--motion-base) ease;
+}
+.site-header.is-scrolled {
+  background: color-mix(in oklab, var(--bg) 90%, transparent);
+  box-shadow: 0 10px 30px color-mix(in oklab, var(--shadow) 44%, transparent);
 }
 .site-header:has(.network-status[data-state="online"]) { border-bottom-color: var(--border); }
 .site-header-inner {
@@ -1564,14 +1581,29 @@ textarea:focus, select:focus, input:not([type="radio"]):not([type="checkbox"]):f
 @keyframes shell-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes panel-enter { from { opacity: 0; transform: translateY(8px) scale(.995); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes tab-select { 0% { transform: scale(.97); } 65% { transform: scale(1.015); } 100% { transform: scale(1); } }
+@keyframes item-enter { from { opacity: 0; transform: translateX(9px) scale(.97); } to { opacity: 1; transform: translateX(0) scale(1); } }
+@keyframes item-select { 0% { transform: translateY(1px) scale(.985); } 70% { transform: translateY(0) scale(1.01); } 100% { transform: scale(1); } }
+@keyframes form-swap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes validation-confirm { 0% { opacity: .65; transform: translateY(2px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes validation-error { 0% { opacity: 0; transform: translateX(-4px); } 55% { transform: translateX(2px); } 100% { opacity: 1; transform: translateX(0); } }
+@keyframes progress-enter { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes copy-confirm { 45% { transform: scale(1.18) rotate(-4deg); } }
 @keyframes dialog-enter { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes status-pulse { 0%, 100% { text-shadow: 0 0 0 transparent; } 50% { text-shadow: 0 0 9px currentColor; } }
 .safety-center, .hero-note, #workspace, .key-manager { animation: none; }
-.hero-copy { animation: shell-rise .32s cubic-bezier(.2,.8,.2,1) both; }
-#workspace > .tab:is(.active, [aria-pressed="true"]), #modes > .tab:is(.active, [aria-pressed="true"]) { animation: tab-select .24s cubic-bezier(.2,.8,.2,1); }
-#calc-card:not([hidden]), #msig-card:not([hidden]), #psbt-card:not([hidden]), #out > * { animation: panel-enter .3s cubic-bezier(.2,.8,.2,1) both; }
-.safety-center[open] .safety-details { animation: panel-enter .2s ease-out both; }
-.confirm-dialog[open] { animation: dialog-enter .2s cubic-bezier(.2,.8,.2,1) both; }
+.hero-copy { animation: shell-rise var(--motion-slow) var(--motion-standard) both; }
+#workspace > .tab:is(.active, [aria-pressed="true"]), #modes > .tab:is(.active, [aria-pressed="true"]) { animation: tab-select var(--motion-base) var(--motion-standard); }
+#calc-card:not([hidden]), #msig-card:not([hidden]), #psbt-card:not([hidden]), #out > * { animation: panel-enter var(--motion-slow) var(--motion-standard) both; }
+.key-tab.is-entering { animation: item-enter var(--motion-slow) var(--motion-emphasized) both; }
+.key-tab.is-selecting { animation: item-select var(--motion-base) var(--motion-standard); }
+.key-form.is-swapping { animation: form-swap var(--motion-base) var(--motion-standard) both; }
+.derive-progress:not([hidden]) { animation: progress-enter var(--motion-base) var(--motion-standard) both; }
+.derive-progress.is-complete, .action-readiness.is-ready { animation: validation-confirm var(--motion-base) var(--motion-standard); }
+.err:not(:empty) { animation: validation-error var(--motion-base) var(--motion-emphasized); }
+.seed-phrase-copy.is-copied { animation: copy-confirm var(--motion-base) var(--motion-emphasized); }
+.header-more[open] .header-menu { animation: dialog-enter var(--motion-base) var(--motion-emphasized) both; }
+.safety-center[open] .safety-details { animation: panel-enter var(--motion-base) ease-out both; }
+.confirm-dialog[open] { animation: dialog-enter var(--motion-base) var(--motion-standard) both; }
 .network-status[data-state="online"] { animation: none; }
 
 @media (max-width: 900px) {

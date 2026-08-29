@@ -3,6 +3,14 @@
   const privacyButton = document.getElementById("privacy-toggle");
   const privacyLabel = privacyButton?.querySelector(".privacy-label");
   const networkStatus = document.getElementById("network-status");
+  const siteHeader = document.querySelector(".site-header");
+  const pulseThemeTransition = () => {
+    const root = document.documentElement;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    root.classList.add("is-theme-changing");
+    window.clearTimeout(root.hodlThemeMotionTimer);
+    root.hodlThemeMotionTimer = window.setTimeout(() => root.classList.remove("is-theme-changing"), 360);
+  };
 
   if (app && !app.querySelector(".skip-link")) {
     const skipLink = document.createElement("a");
@@ -63,6 +71,7 @@
       <span class="sr-only" id="palette-status" aria-live="polite"></span>`;
     const applyPalette = (palette, announceChange = false) => {
       if (!palettes.some(([id]) => id === palette)) palette = "aurora";
+      if (announceChange) pulseThemeTransition();
       document.documentElement.dataset.palette = palette;
       palettePicker.querySelectorAll("[data-palette-choice]").forEach((button) => {
         const selected = button.dataset.paletteChoice === palette;
@@ -212,6 +221,10 @@
     if (!control) return;
     if (control.matches(".download-html")) announce("Offline HTML download started.");
     if (control.matches(".save-recovery-sheet, .save-wallet-dat")) announce("Export prepared. Store it securely.");
+    if (control.matches("#add-key")) announce("New key workspace added.");
+    if (control.matches("#add-msig")) announce("New multisig workspace added.");
+    if (control.matches("#delete-key")) announce("Key workspace deleted.");
+    if (control.matches("#delete-msig")) announce("Multisig workspace deleted.");
     if (control.matches("#wipe, #msig-wipe, #psbt-wipe")) window.setTimeout(() => announce("Session fields cleared."), 0);
     if (control.matches("#go, #msig-go, #psbt-go") && !control.disabled) {
       const panel = control.closest("#calc-card, #msig-card, #psbt-card");
@@ -339,6 +352,7 @@
   const syncDockedActions = () => {
     const viewportHeight = window.innerHeight;
     const activationLine = Math.min(120, viewportHeight * 0.2);
+    siteHeader?.classList.toggle("is-scrolled", window.scrollY > 8);
     actionRows.forEach((row) => {
       const panel = row.closest("#calc-card, #msig-card, #psbt-card");
       if (!panel || panel.hidden || row.offsetParent === null) {

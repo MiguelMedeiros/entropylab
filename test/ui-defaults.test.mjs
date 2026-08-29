@@ -717,7 +717,8 @@ test("header theme toggle cycles dark, light, and OS themes without a flash", ()
   }
   assert.match(template, /<script>\(function\(\)\{try\{var m=localStorage\.getItem\("entropylab-theme"\)/);
   assert.match(app, /var hodlThemeModes=\["dark","light","system"\],hodlThemeStorageKey="entropylab-theme"/);
-  assert.match(app, /function hodlApplyTheme\(mode\)/);
+  assert.match(appSource, /function hodlApplyTheme\(mode, animate = false\)/);
+  assert.match(appSource, /hodlApplyTheme\([^\n]+, true\)/);
   assert.match(appSource, /hodlInitSecretFieldAutoClear\(\);\s*hodlInitTheme\(\);/);
   assert.match(css, /:root\[data-theme="light"\] \{\s*color-scheme: light;/);
   assert.match(css, /@media print \{\s*:root, :root\[data-theme\] \{/);
@@ -1001,10 +1002,22 @@ test("the header avoids fake progress while feedback and errors explain the next
 });
 
 test("workbench motion is purposeful and optional", () => {
-  for (const keyframe of ["shell-rise", "panel-enter", "tab-select", "dialog-enter", "status-pulse"]) {
+  for (const keyframe of ["shell-rise", "panel-enter", "tab-select", "item-enter", "item-select", "form-swap", "validation-confirm", "validation-error", "progress-enter", "copy-confirm", "dialog-enter", "status-pulse"]) {
     assert.match(css, new RegExp(`@keyframes ${keyframe}`));
   }
+  for (const token of ["--motion-fast", "--motion-base", "--motion-slow", "--motion-standard", "--motion-emphasized"]) {
+    assert.match(css, new RegExp(token));
+  }
   assert.match(css, /#calc-card:not\(\[hidden\]\), #msig-card:not\(\[hidden\]\), #psbt-card:not\(\[hidden\]\), #out > \* \{ animation: panel-enter/);
+  assert.match(css, /\.key-tab\.is-entering \{ animation: item-enter/);
+  assert.match(css, /\.key-form\.is-swapping \{ animation: form-swap/);
+  assert.match(css, /\.derive-progress:not\(\[hidden\]\) \{ animation: progress-enter/);
+  assert.match(css, /\.seed-phrase-copy\.is-copied \{ animation: copy-confirm/);
+  assert.match(appSource, /function hodlAnimateManagedTab/);
+  assert.match(appSource, /hodlAnimateKeyFormSwap\(\)/);
+  assert.match(uiShell, /siteHeader\?\.classList\.toggle\("is-scrolled", window\.scrollY > 8\)/);
+  assert.match(uiShell, /window\.addEventListener\("scroll", scheduleDockSync, \{ passive: true \}\)/);
+  assert.doesNotMatch(css, /animation(?:-iteration-count)?:\s*infinite/);
   assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*animation-duration: \.01ms !important;[\s\S]*animation-iteration-count: 1 !important;/);
 });
 

@@ -4452,6 +4452,17 @@ function hodlInvalidateActiveKeyOutput() {
     state.error = "";
   }
 }
+function hodlAnimateKeyFormSwap() {
+  if (!at) return;
+  at.classList.remove("is-swapping");
+  requestAnimationFrame(() => {
+    if (!at.isConnected) return;
+    at.classList.add("is-swapping");
+    let cleanup = () => at.classList.remove("is-swapping");
+    at.addEventListener("animationend", cleanup, { once: true });
+    setTimeout(cleanup, 400);
+  });
+}
 function hodlSetSeedLength(words) {
   let config = hodlSeedLengths[Number(words)];
   if (!config) return;
@@ -4476,6 +4487,7 @@ function hodlSetSeedLength(words) {
   hodlRenderKeyForm();
   hodlRestoreFormFields(state);
   hodlUpdateSeedLengthControl();
+  hodlAnimateKeyFormSwap();
   hodlQueueMasterFingerprintPreview(0);
 }
 function hodlRenderKeyForm() {
@@ -7320,6 +7332,7 @@ function hodlRestoreFormFields(state) {
   });
 }
 function hodlSetMode(mode) {
+  if (mode === Ne || !hodlKeyModes.includes(mode)) return;
   hodlCaptureKey();
   let state = hodlKeys[hodlActiveKey];
   if (state) state.mode = mode;
@@ -7336,6 +7349,7 @@ function hodlSetMode(mode) {
   hodlRestoreFormFields(state);
   hodlUpdateSeedLengthControl();
   hodlUpdateDerivationPathPreview();
+  hodlAnimateKeyFormSwap();
   hodlQueueSegmentedControlSync();
 }
 function hodlKeyStateNeedsClear(state) {
@@ -7660,6 +7674,15 @@ function hodlRevealTab(box, index) {
   else if (end > right) target = end - box.clientWidth;
   if (target !== left) box.scrollTo({ left: target, behavior: "smooth" });
 }
+function hodlAnimateManagedTab(box, index, className) {
+  let tab = box?.children[index];
+  if (!tab) return;
+  tab.classList.remove("is-entering", "is-selecting");
+  tab.classList.add(className);
+  let cleanup = () => tab.classList.remove(className);
+  tab.addEventListener("animationend", cleanup, { once: true });
+  setTimeout(cleanup, 400);
+}
 function hodlSyncKeyDeleteButton() {
   let button = W("#delete-key");
   if (!button) return;
@@ -7685,6 +7708,7 @@ function hodlSelectKey(index) {
   hodlActiveKey = index;
   hodlRenderKeyTabs();
   hodlRestoreKey();
+  hodlAnimateManagedTab(W("#key-tabs"), hodlActiveKey, "is-selecting");
 }
 function hodlAddKey() {
   hodlCaptureKey();
@@ -7692,6 +7716,7 @@ function hodlAddKey() {
   hodlActiveKey = hodlKeys.length - 1;
   hodlRenderKeyTabs();
   hodlRestoreKey();
+  hodlAnimateManagedTab(W("#key-tabs"), hodlActiveKey, "is-entering");
 }
 function hodlDeleteActiveKey() {
   if (hodlKeys.length <= 1 || hodlActiveKey < 0 || !hodlKeys[hodlActiveKey]) {
@@ -7704,6 +7729,7 @@ function hodlDeleteActiveKey() {
   hodlActiveKey = hodlKeys.length ? Math.min(deletedIndex, hodlKeys.length - 1) : -1;
   hodlRenderKeyTabs();
   hodlRestoreKey();
+  hodlAnimateManagedTab(W("#key-tabs"), hodlActiveKey, "is-selecting");
   (hodlActiveKey >= 0 ? W("#key-tabs").children[hodlActiveKey] : W("#add-key"))?.focus();
 }
 var hodlNextMsigId = 1, hodlNextMsigNumber = 1, hodlMsigs = [], hodlActiveMsig = -1;
@@ -7917,6 +7943,7 @@ function hodlSelectMsig(index) {
   hodlActiveMsig = index;
   hodlRenderMsigTabs();
   hodlRestoreMsig();
+  hodlAnimateManagedTab(W("#msig-tabs"), hodlActiveMsig, "is-selecting");
 }
 function hodlAddMsig() {
   hodlCaptureMsig();
@@ -7924,6 +7951,7 @@ function hodlAddMsig() {
   hodlActiveMsig = hodlMsigs.length - 1;
   hodlRenderMsigTabs();
   hodlRestoreMsig();
+  hodlAnimateManagedTab(W("#msig-tabs"), hodlActiveMsig, "is-entering");
 }
 function hodlDeleteActiveMsig() {
   if (hodlMsigs.length <= 1 || hodlActiveMsig < 0 || !hodlMsigs[hodlActiveMsig]) {
@@ -7936,6 +7964,7 @@ function hodlDeleteActiveMsig() {
   hodlActiveMsig = hodlMsigs.length ? Math.min(deletedIndex, hodlMsigs.length - 1) : -1;
   hodlRenderMsigTabs();
   hodlRestoreMsig();
+  hodlAnimateManagedTab(W("#msig-tabs"), hodlActiveMsig, "is-selecting");
   (hodlActiveMsig >= 0 ? W("#msig-tabs").children[hodlActiveMsig] : W("#add-msig"))?.focus();
 }
 function hodlShowWorkspace(id) {
@@ -8141,8 +8170,16 @@ function hodlReadThemeMode() {
     return "dark";
   }
 }
-function hodlApplyTheme(mode) {
+function hodlPulseThemeTransition() {
+  let root = document.documentElement;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  root.classList.add("is-theme-changing");
+  clearTimeout(root.hodlThemeMotionTimer);
+  root.hodlThemeMotionTimer = setTimeout(() => root.classList.remove("is-theme-changing"), 360);
+}
+function hodlApplyTheme(mode, animate = false) {
   if (!hodlThemeModes.includes(mode)) mode = "dark";
+  if (animate) hodlPulseThemeTransition();
   let light = mode === "light" || mode === "system" && hodlThemeLightQuery.matches;
   if (light) document.documentElement.dataset.theme = "light";
   else delete document.documentElement.dataset.theme;
@@ -8163,7 +8200,7 @@ function hodlApplyTheme(mode) {
 function hodlInitTheme() {
   hodlApplyTheme(hodlReadThemeMode());
   let toggle = document.getElementById("theme-toggle");
-  if (toggle) toggle.onclick = () => hodlApplyTheme(hodlThemeModes[(hodlThemeModes.indexOf(hodlReadThemeMode()) + 1) % hodlThemeModes.length]);
+  if (toggle) toggle.onclick = () => hodlApplyTheme(hodlThemeModes[(hodlThemeModes.indexOf(hodlReadThemeMode()) + 1) % hodlThemeModes.length], true);
   hodlThemeLightQuery.addEventListener("change", () => {
     if (hodlReadThemeMode() === "system") hodlApplyTheme("system");
   });
