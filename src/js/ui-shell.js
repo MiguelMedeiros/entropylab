@@ -141,6 +141,79 @@
     heroCopy.append(heroActions);
   }
 
+  const scrollRevealTargets = [
+    [".hero-note", "rise"],
+    ["#workspace", "scale"],
+    ["#key-manager:not([hidden]), #msig-manager:not([hidden])", "rise"],
+    ["#calc-card:not([hidden]) > .key-panel-head, #msig-card:not([hidden]) > .key-panel-head", "rise"],
+    ["#calc-card:not([hidden]) > .seed-length-control, #calc-card:not([hidden]) > .key-form", "rise"],
+    ["#calc-card:not([hidden]) > .key-settings, #msig-card:not([hidden]) > .msig-keys, #psbt-card:not([hidden]) > .psbt-grid", "rise"],
+    ["#calc-card:not([hidden]) > .current-item-actions, #msig-card:not([hidden]) > .current-item-actions, #psbt-card:not([hidden]) > .psbt-actions", "scale"],
+    [".sources-intro", "rise"],
+    [".sources-network-note", "rise"],
+    [".source-item", "rise"],
+    [".site-footer", "rise"],
+  ];
+  const revealedElements = new WeakSet();
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  let scrollRevealObserver = null;
+  if (!reduceMotion.matches && "IntersectionObserver" in window) {
+    document.documentElement.classList.add("has-scroll-reveal");
+    scrollRevealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting && entry.boundingClientRect.top >= 0) return;
+        observer.unobserve(entry.target);
+        requestAnimationFrame(() => {
+          entry.target.classList.remove("is-reveal-pending");
+          entry.target.classList.add("is-revealed");
+          if (entry.target.matches(".source-item")) {
+            window.setTimeout(() => entry.target.style.removeProperty("--reveal-delay"), 850);
+          }
+        });
+      });
+    }, { threshold: 0.06, rootMargin: "0px 0px -7% 0px" });
+  }
+  const registerScrollReveals = () => {
+    scrollRevealTargets.forEach(([selector, variant]) => {
+      document.querySelectorAll(selector).forEach((element, index) => {
+        if (revealedElements.has(element) || !element.getClientRects().length) return;
+        revealedElements.add(element);
+        element.dataset.scrollReveal = variant;
+        if (element.matches(".source-item")) element.style.setProperty("--reveal-delay", `${index % 3 * 70}ms`);
+        const rect = element.getBoundingClientRect();
+        if (!scrollRevealObserver || rect.top < innerHeight * 0.9 && rect.bottom > 0) {
+          element.classList.add("is-revealed");
+          element.style.removeProperty("--reveal-delay");
+          return;
+        }
+        element.classList.add("is-reveal-pending");
+        scrollRevealObserver.observe(element);
+      });
+    });
+  };
+  registerScrollReveals();
+  document.addEventListener("focusin", (event) => {
+    const element = event.target.closest?.(".is-reveal-pending");
+    if (!element) return;
+    scrollRevealObserver?.unobserve(element);
+    element.classList.remove("is-reveal-pending");
+    element.classList.add("is-revealed");
+    element.style.removeProperty("--reveal-delay");
+  });
+  reduceMotion.addEventListener("change", () => {
+    if (!reduceMotion.matches) return;
+    scrollRevealObserver?.disconnect();
+    document.documentElement.classList.remove("has-scroll-reveal");
+    document.querySelectorAll(".is-reveal-pending").forEach((element) => {
+      element.classList.remove("is-reveal-pending");
+      element.classList.add("is-revealed");
+      element.style.removeProperty("--reveal-delay");
+    });
+  });
+  document.addEventListener("click", (event) => {
+    if (event.target.closest?.("#workspace button")) requestAnimationFrame(registerScrollReveals);
+  });
+
   const visiblePanel = () => [...document.querySelectorAll("#calc-card, #msig-card, #psbt-card")]
     .find((panel) => !panel.hidden && panel.offsetParent !== null);
   const hasEnteredData = (panel) => [...(panel?.querySelectorAll("textarea, input:not([type='radio']):not([type='checkbox']):not([type='range']):not([type='number'])") || [])]
@@ -353,6 +426,8 @@
     const viewportHeight = window.innerHeight;
     const activationLine = Math.min(120, viewportHeight * 0.2);
     siteHeader?.classList.toggle("is-scrolled", window.scrollY > 8);
+    const scrollRange = Math.max(1, document.documentElement.scrollHeight - viewportHeight);
+    siteHeader?.style.setProperty("--page-scroll-progress", String(Math.min(1, Math.max(0, window.scrollY / scrollRange))));
     actionRows.forEach((row) => {
       const panel = row.closest("#calc-card, #msig-card, #psbt-card");
       if (!panel || panel.hidden || row.offsetParent === null) {

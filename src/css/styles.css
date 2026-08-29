@@ -1334,6 +1334,11 @@ body, .key-tab-strip, #workspace, .current-item-actions, .psbt-actions,
   background: color-mix(in oklab, var(--bg) 90%, transparent);
   box-shadow: 0 10px 30px color-mix(in oklab, var(--shadow) 44%, transparent);
 }
+.site-header::after {
+  content: ""; position: absolute; right: 0; bottom: -1px; left: 0; height: 2px; pointer-events: none;
+  background: var(--accent); opacity: .72; transform: scaleX(var(--page-scroll-progress, 0)); transform-origin: left center;
+}
+html[dir="rtl"] .site-header::after { transform-origin: right center; }
 .site-header:has(.network-status[data-state="online"]) { border-bottom-color: var(--border); }
 .site-header-inner {
   max-width: 1320px; height: var(--site-header-height); display: grid; align-items: center;
@@ -1613,6 +1618,18 @@ textarea:focus, select:focus, input:not([type="radio"]):not([type="checkbox"]):f
 .confirm-dialog p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
 .confirm-dialog-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
 .btn.destructive { background: var(--danger); border-color: var(--danger); color: white; }
+
+.has-scroll-reveal [data-scroll-reveal] {
+  opacity: 1; filter: blur(0); transform: translate3d(0, 0, 0) scale(1);
+  transition: opacity 540ms var(--motion-standard), transform 640ms var(--motion-emphasized), filter 520ms ease,
+    color var(--motion-fast) ease, background-color var(--motion-fast) ease, border-color var(--motion-fast) ease;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.has-scroll-reveal [data-scroll-reveal].is-reveal-pending {
+  opacity: 0; filter: blur(7px); transform: translate3d(0, 24px, 0) scale(.992); will-change: opacity, transform, filter;
+}
+.has-scroll-reveal [data-scroll-reveal="scale"].is-reveal-pending { transform: translate3d(0, 14px, 0) scale(.965); }
+.has-scroll-reveal [data-scroll-reveal].is-revealed { opacity: 1; filter: blur(0); transform: translate3d(0, 0, 0) scale(1); }
 
 @keyframes shell-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes panel-enter { from { opacity: 0; transform: translateY(8px) scale(.995); } to { opacity: 1; transform: translateY(0) scale(1); } }

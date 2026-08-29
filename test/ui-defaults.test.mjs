@@ -1034,6 +1034,25 @@ test("workbench motion is purposeful and optional", () => {
   assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*animation-duration: \.01ms !important;[\s\S]*animation-iteration-count: 1 !important;/);
 });
 
+test("scroll choreography reveals content once without a polling loop", () => {
+  assert.match(uiShell, /const scrollRevealTargets = \[/);
+  assert.match(uiShell, /new IntersectionObserver/);
+  assert.match(uiShell, /entry\.boundingClientRect\.top >= 0/);
+  assert.match(uiShell, /observer\.unobserve\(entry\.target\)/);
+  assert.match(uiShell, /const revealedElements = new WeakSet\(\)/);
+  assert.match(uiShell, /!element\.getClientRects\(\)\.length/);
+  assert.match(uiShell, /document\.addEventListener\("focusin"/);
+  assert.match(uiShell, /reduceMotion\.addEventListener\("change"/);
+  assert.match(uiShell, /scrollRevealObserver\?\.disconnect\(\)/);
+  assert.match(uiShell, /--reveal-delay/);
+  assert.match(uiShell, /--page-scroll-progress/);
+  assert.equal(uiShell.match(/window\.addEventListener\("scroll"/g)?.length, 1);
+  assert.match(css, /\.site-header::after \{[\s\S]*scaleX\(var\(--page-scroll-progress, 0\)\)/);
+  assert.match(css, /\.has-scroll-reveal \[data-scroll-reveal\]\.is-reveal-pending/);
+  assert.match(css, /will-change: opacity, transform, filter/);
+  assert.doesNotMatch(uiShell, /setInterval|requestIdleCallback/);
+});
+
 test("workbench accent pairs meet WCAG AA contrast", () => {
   const luminance = (hex) => {
     const channels = hex.slice(1).match(/../g).map((value) => Number.parseInt(value, 16) / 255)
