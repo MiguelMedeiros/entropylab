@@ -1370,6 +1370,12 @@ button, a, input, textarea, select, .card, .custom-select-list {
   position: absolute; top: calc(100% + 9px); right: 0; z-index: 60; width: 280px; display: grid; gap: 6px;
   padding: 9px; border: 1px solid var(--border); border-radius: 13px; background: var(--surface); box-shadow: 0 18px 48px rgb(0 0 0 / 38%);
 }
+.language-picker { display: grid; gap: 8px; padding: 5px 4px 10px; border-bottom: 1px solid var(--border); }
+.language-picker > span { padding-inline: 4px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.header-menu .language-picker select {
+  width: 100%; min-height: 40px; margin: 0; padding: 7px 32px 7px 10px; border-radius: 9px;
+  background-color: var(--surface-2); color: var(--fg); font-family: var(--sans); font-size: 13px; font-weight: 700;
+}
 .palette-picker { display: grid; gap: 8px; padding: 5px 4px 10px; border-bottom: 1px solid var(--border); }
 .palette-picker-label { padding-inline: 4px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .palette-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
@@ -1391,6 +1397,12 @@ button, a, input, textarea, select, .card, .custom-select-list {
 .header-menu .site-version-number { margin-left: auto; color: var(--accent); }
 .header-menu .site-version-tag { color: var(--muted); }
 .header-menu .github-repo-link { width: 100%; min-height: 40px; display: inline-flex; align-items: center; gap: 8px; justify-content: flex-start; }
+:root[dir="rtl"] .header-menu { right: auto; left: 0; }
+:root[dir="rtl"] .add-item-tooltip { right: auto; left: 0; text-align: right; }
+:root[dir="rtl"] .add-item-tooltip::before { right: auto; left: 15px; }
+:root[dir="rtl"] :is(code, pre, textarea, input, .mono, .secret, .dice-word-grid, [data-lw], .wallet-table, .qr) {
+  direction: ltr; text-align: left; unicode-bidi: isolate;
+}
 .wrap { max-width: 1120px; padding-left: 28px; padding-right: 28px; }
 .hero {
   display: block; max-width: 880px; padding: 42px 0 22px;

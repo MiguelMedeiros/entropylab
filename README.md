@@ -45,6 +45,9 @@ Official website: [entropylab.online](https://entropylab.online)
   keyboard-visible focus, mobile-friendly controls, and reduced-motion support.
 - Offers persistent Aurora, Tide, Grove, and Orchid color palettes independently
   of the dark, light, or operating-system appearance mode.
+- Translates the interface offline into English, Brazilian Portuguese, Spanish,
+  Simplified Chinese, Hindi, Arabic, French, German, and Japanese. The selected
+  language persists between sessions, and Arabic uses a native right-to-left layout.
 - Exports a Bitcoin Core `wallet.dat` (SQLite descriptor wallet) with every
   derived output descriptor already imported — receive and change for each
   script type, active and ready for address generation. The default download
@@ -176,6 +179,7 @@ To remove generated files, run `npm run clean`.
 │       ├── network-check.js Network adapter detection and warning
 │       ├── browser-check.js Startup browser sanity checks and kill-screen
 │       ├── ui-shell.js      Presentation mode, safety summary, and UI feedback
+│       ├── i18n.js          Offline interface translations and language selection
 │       ├── enhanced-inputs.js
 │       └── repeat-inputs.js
 ├── entropylab.html         Compiled application (generated, CI-committed)

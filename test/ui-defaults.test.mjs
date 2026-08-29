@@ -26,6 +26,7 @@ const appWhitespace = transformSync(appSource, {
 const css = read("src/css/styles.css");
 const online = read("src/js/online.js");
 const uiShell = read("src/js/ui-shell.js");
+const i18n = read("src/js/i18n.js");
 const build = read("scripts/build.mjs");
 
 test("top status banner omits the entropy RNG message", () => {
@@ -930,6 +931,24 @@ test("production keeps the canonical workbench shell", () => {
   assert.match(template, /\/\*@@JS_UI_SHELL@@\*\//);
   assert.match(build, /const jsUiShell = read\("js\/ui-shell\.js"\)/);
   assert.match(build, /\.replace\("\/\*@@JS_UI_SHELL@@\*\/", \(\) => jsUiShell\)/);
+});
+
+test("internationalization stays offline, persistent, dynamic, and RTL-aware", () => {
+  assert.match(template, /\/\*@@JS_I18N@@\*\//);
+  assert.match(build, /const jsI18n = read\("js\/i18n\.js"\)/);
+  assert.match(build, /\.replace\("\/\*@@JS_I18N@@\*\/", \(\) => jsI18n\)/);
+  assert.match(template, /localStorage\.getItem\("entropylab-language"\)/);
+  for (const locale of ["en", "pt-BR", "es", "zh-CN", "hi", "ar", "fr", "de", "ja"]) {
+    assert.match(i18n, new RegExp(`\\["${locale.replace("-", "\\-")}",`));
+  }
+  assert.match(i18n, /new MutationObserver/);
+  assert.match(i18n, /document\.documentElement\.dir = direction/);
+  assert.match(i18n, /localStorage\.setItem\(STORAGE_KEY, language\)/);
+  assert.match(i18n, /const excluded = "[^"]*textarea[^"]*\.secret[^"]*\.wallet-table/);
+  assert.doesNotMatch(i18n, /\b(?:fetch|XMLHttpRequest|WebSocket)\b/);
+  assert.match(css, /\.language-picker \{/);
+  assert.match(css, /:root\[dir="rtl"\] \.header-menu/);
+  assert.match(css, /:root\[dir="rtl"\] \.add-item-tooltip/);
 });
 
 test("presentation mode, safety review, and destructive confirmation remain accessible", () => {
