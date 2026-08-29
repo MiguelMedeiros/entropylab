@@ -800,14 +800,27 @@ test("the header brand is code-native and never fetches decorative artwork", () 
 test("the seam into the tool is wider than the page's other major seams", () => {
   assert.match(css, /--space-major: 32px;/);
   assert.match(css, /--space-lede: 48px;/);
-  // The pitch-to-tool seam is the page's widest; the closing Sources card keeps
-  // the ordinary major one. Both collapse with a neighbouring card's 16px, so
-  // the larger value wins rather than the two adding up.
+  // The pitch-to-tool seam is the page's widest; the closing Sources section
+  // keeps the ordinary major one.
   assert.match(css, /#workspace \{ margin: var\(--space-lede\) 0 4px; \}/);
   assert.match(css, /\.sources \{ margin-top: var\(--space-major\); \}/);
   for (const markup of [template, app]) {
-    assert.match(markup, /<section class="card muted sources">/);
+    assert.match(markup, /<section class="sources" aria-labelledby="sources-heading">/);
   }
+});
+
+test("sources are scannable, complete, and explicit about external navigation", () => {
+  for (const markup of [template, appSource]) {
+    assert.equal(markup.match(/class="source-item"/g)?.length, 6);
+    assert.match(markup, /class="sources-network-note"/);
+    assert.match(markup, /External links can reconnect this device/);
+    assert.match(markup, /Pearson’s χ²/);
+    assert.match(markup, /class="site-footer no-print"/);
+    assert.equal(markup.match(/class="source-link"[^>]*target="_blank" rel="noopener noreferrer"/g)?.length, 7);
+  }
+  assert.match(css, /\.sources-grid \{[\s\S]*list-style: none;/);
+  assert.match(css, /@media \(min-width: 1040px\) \{ \.sources-grid \{ grid-template-columns: repeat\(3,/);
+  assert.match(css, /\.source-link:hover > span:last-child/);
 });
 
 test("the canonical hero explains the primary task before the workbench", () => {
@@ -912,7 +925,7 @@ test("dice rolls hide Pearson chi-squared fairness behind a text expand button",
   assert.match(css, /\.dice-fairness-toggle \{/);
   assert.match(css, /\.dice-fairness\[data-tone="danger"\] \{/);
   assert.match(template, /dicefairness\.johnellmore\.com/);
-  assert.match(template, /How can I test whether a die is fair/);
+  assert.match(template, /rpg\.stackexchange\.com\/questions\/70802\/how-can-i-test-whether-a-die-is-fair/);
 });
 
 test("card suit glyphs have explicit local symbol-font fallbacks (issue #104)", () => {

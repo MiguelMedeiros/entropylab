@@ -297,14 +297,56 @@ words, pick one of the checksum words.</span></span>
       <p class="muted">Session keys remain in this page only and are never intentionally stored or sent. Memory clearing is best-effort because browsers may retain internal copies; close the page before reconnecting the computer.</p>
     </section>
     <div id="out"></div>
-    <section class="card muted sources">
-      <h3 class="sources-heading">Sources</h3>
-      <p>Ian Coleman BIP39: <a href="https://github.com/iancoleman/bip39" target="_blank" rel="noopener noreferrer">github.com/iancoleman/bip39</a> — pull <code>bip39-standalone.html</code> from Releases, or <code>src/js/index.js</code>, <code>entropy.js</code>, <code>jsbip39.js</code>, <code>wordlist_english.js</code>.</p>
-      <p>bitaddress.org: <a href="https://github.com/pointbiz/bitaddress.org" target="_blank" rel="noopener noreferrer">github.com/pointbiz/bitaddress.org</a> — pull <code>bitaddress.org.html</code>, or <code>src/ninja.key.js</code>, <code>ninja.detailwallet.js</code>, <code>ninja.paperwallet.js</code>, <code>bitcoinjs-lib.eckey.js</code>.</p>
-      <p>BitBox02 diceware: <a href="https://blog.bitbox.swiss/en/roll-the-dice-generate-your-own-seed/" target="_blank" rel="noopener noreferrer">roll-the-dice-generate-your-own-seed</a> — lookup table is the BIP39 English list in order.</p>
-      <p>D++ D8 &amp; D16 method: <a href="https://thesimplestbitcoinbook.net/wp-content/uploads/2023/09/Roll-Your-Own-Seed-Phrase-PDF.pdf" target="_blank" rel="noopener noreferrer">Roll Your Own Bitcoin Seed Phrase</a> — the published 24-word workflow uses one D8 and two D16 rolls per word, then a final D8.</p>
-      <p>Die Distribution / Fairness Analysis (Pearson’s χ²): <a href="https://rpg.stackexchange.com/questions/70802/how-can-i-test-whether-a-die-is-fair" target="_blank" rel="noopener noreferrer">How can I test whether a die is fair?</a> — live check while entering rolls, following the <a href="https://dicefairness.johnellmore.com/" target="_blank" rel="noopener noreferrer">Dice Fairness Tester</a> thresholds.</p>
-      <p>Jade anti-exfil (sign-to-contract): <a href="https://blog.blockstream.com/anti-exfil-stopping-key-exfiltration/" target="_blank" rel="noopener noreferrer">Anti-Exfil: Stopping Key Exfiltration</a> — secp256k1-zkp <code>ecdsa_s2c</code> / <code>anti_exfil_host_verify</code>.</p>
+    <section class="sources" aria-labelledby="sources-heading">
+      <div class="sources-intro">
+        <div>
+          <p class="kicker">Verify independently</p>
+          <h2 class="sources-heading" id="sources-heading">Sources</h2>
+        </div>
+        <p>Primary references behind the deterministic methods and checks used in EntropyLab.</p>
+      </div>
+      <p class="sources-network-note"><span aria-hidden="true">↗</span> External links can reconnect this device. Open them only after clearing sensitive data.</p>
+      <ol class="sources-grid">
+        <li class="source-item">
+          <span class="source-kind">Reference implementation</span>
+          <h3>Ian Coleman BIP39</h3>
+          <p>BIP39 reference implementation and standalone verification tool.</p>
+          <p class="source-files"><span>Implementation files</span><code>bip39-standalone.html · entropy.js · jsbip39.js</code></p>
+          <a class="source-link" href="https://github.com/iancoleman/bip39" target="_blank" rel="noopener noreferrer"><span>Open reference</span><span aria-hidden="true">↗</span></a>
+        </li>
+        <li class="source-item">
+          <span class="source-kind">Independent comparison</span>
+          <h3>bitaddress.org</h3>
+          <p>Independent legacy key and paper-wallet implementation.</p>
+          <p class="source-files"><span>Implementation files</span><code>bitaddress.org.html · ninja.key.js · bitcoinjs-lib.eckey.js</code></p>
+          <a class="source-link" href="https://github.com/pointbiz/bitaddress.org" target="_blank" rel="noopener noreferrer"><span>Open reference</span><span aria-hidden="true">↗</span></a>
+        </li>
+        <li class="source-item">
+          <span class="source-kind">Physical entropy</span>
+          <h3>BitBox02 diceware</h3>
+          <p>Dice-to-word lookup method based on the ordered BIP39 English list.</p>
+          <a class="source-link" href="https://blog.bitbox.swiss/en/roll-the-dice-generate-your-own-seed/" target="_blank" rel="noopener noreferrer"><span>Open reference</span><span aria-hidden="true">↗</span></a>
+        </li>
+        <li class="source-item">
+          <span class="source-kind">Physical entropy</span>
+          <h3>D++ D8 &amp; D16</h3>
+          <p>Published seed workflow using one D8 and two hexadecimal D16 rolls per word.</p>
+          <a class="source-link" href="https://thesimplestbitcoinbook.net/wp-content/uploads/2023/09/Roll-Your-Own-Seed-Phrase-PDF.pdf" target="_blank" rel="noopener noreferrer"><span>Open reference</span><span aria-hidden="true">↗</span></a>
+        </li>
+        <li class="source-item">
+          <span class="source-kind">Statistical check</span>
+          <h3>Pearson’s χ²</h3>
+          <p>Die-distribution check and the minimum-sample thresholds used by the live analysis.</p>
+          <div class="source-link-row"><a class="source-link" href="https://rpg.stackexchange.com/questions/70802/how-can-i-test-whether-a-die-is-fair" target="_blank" rel="noopener noreferrer"><span>Method</span><span aria-hidden="true">↗</span></a><a class="source-link" href="https://dicefairness.johnellmore.com/" target="_blank" rel="noopener noreferrer"><span>Thresholds</span><span aria-hidden="true">↗</span></a></div>
+        </li>
+        <li class="source-item">
+          <span class="source-kind">Signing security</span>
+          <h3>Jade anti-exfil</h3>
+          <p>Sign-to-contract verification implemented with secp256k1-zkp.</p>
+          <p class="source-files"><span>API</span><code>ecdsa_s2c · anti_exfil_host_verify</code></p>
+          <a class="source-link" href="https://blog.blockstream.com/anti-exfil-stopping-key-exfiltration/" target="_blank" rel="noopener noreferrer"><span>Open reference</span><span aria-hidden="true">↗</span></a>
+        </li>
+      </ol>
     </section>
     <footer class="site-footer no-print">
       <span class="footer-security"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 20 6v5c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg>No storage · no analytics · no wallet entropy generation</span>

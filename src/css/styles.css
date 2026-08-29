@@ -1557,8 +1557,44 @@ textarea:focus, select:focus, input:not([type="radio"]):not([type="checkbox"]):f
 }
 .action-toast.is-visible { opacity: 1; transform: translateY(0); }
 
-.sources { margin-top: 38px; padding: 24px 0 0; border: 0; border-top: 1px solid var(--border); border-radius: 0; background: transparent; box-shadow: none; }
-.sources p { font-size: 12px; }
+.sources { margin-top: 42px; padding-top: 30px; border-top: 1px solid var(--border); }
+.sources-intro {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 440px); align-items: end; gap: 16px 36px;
+}
+.sources-intro .kicker { margin: 0 0 7px; }
+.sources-heading { margin: 0; color: var(--fg); font-size: 30px; }
+.sources-intro > p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.sources-network-note {
+  display: flex; align-items: flex-start; gap: 9px; margin: 18px 0 0; padding: 11px 13px;
+  border: 1px solid color-mix(in oklab, var(--warn) 28%, var(--border)); border-radius: 10px;
+  background: color-mix(in oklab, var(--warn) 7%, transparent); color: var(--muted); font-size: 12px; line-height: 1.45;
+}
+.sources-network-note > span { flex: 0 0 auto; color: var(--warn); font-size: 15px; line-height: 1.15; }
+.sources-grid {
+  display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 16px 0 0; padding: 0; list-style: none;
+}
+.source-item {
+  min-width: 0; display: flex; flex-direction: column; align-items: flex-start; padding: 17px;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+  transition: border-color var(--motion-fast) ease, background-color var(--motion-fast) ease, transform var(--motion-fast) ease;
+}
+.source-item:has(.source-link:hover) { border-color: color-mix(in oklab, var(--accent) 42%, var(--border)); background: color-mix(in oklab, var(--accent) 4%, var(--surface)); }
+.source-kind { color: var(--accent); font-size: 10px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.source-item h3 { margin: 9px 0 6px; font-family: var(--sans); font-size: 16px; font-weight: 760; letter-spacing: -.015em; }
+.source-item > p:not(.source-files) { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.55; }
+.source-files { width: 100%; margin: 13px 0 0; padding-top: 11px; border-top: 1px solid color-mix(in oklab, var(--border) 72%, transparent); }
+.source-files span { display: block; margin-bottom: 4px; color: var(--faint); font-size: 9px; font-weight: 800; letter-spacing: .075em; text-transform: uppercase; }
+.source-files code { color: var(--muted); font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+.source-link-row { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: auto; padding-top: 14px; }
+.source-link {
+  min-height: 32px; display: inline-flex; align-items: center; gap: 7px; margin-top: auto; padding-top: 13px;
+  color: var(--accent); font-size: 12px; font-weight: 750; text-decoration: none;
+}
+.source-link-row .source-link { margin-top: 0; padding-top: 0; }
+.source-link > span:last-child { display: inline-block; font-size: 14px; transition: transform var(--motion-fast) var(--motion-standard); }
+.source-link:hover > span:last-child { transform: translate(2px, -2px); }
+@media (min-width: 580px) { .sources-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1040px) { .sources-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .site-footer { margin-top: 42px; padding-top: 26px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11px; }
 .footer-security { display: inline-flex; align-items: center; gap: 8px; }
 .footer-security svg { width: 17px; height: 17px; fill: none; stroke: var(--ok); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
@@ -1635,6 +1671,8 @@ textarea:focus, select:focus, input:not([type="radio"]):not([type="checkbox"]):f
   #modes.segmented-control.is-stacked > .tab { width: auto; margin-block-start: 0; white-space: nowrap; }
   .card { padding: 17px; }
   .site-footer { flex-direction: column; align-items: flex-start; }
+  .sources-intro { grid-template-columns: minmax(0, 1fr); align-items: start; }
+  .sources-heading { font-size: 27px; }
   .safety-center > summary { grid-template-columns: minmax(0, 1fr); gap: 3px; }
   .safety-summary-detail { text-align: left; }
   .confirm-dialog-card { padding: 18px; }
