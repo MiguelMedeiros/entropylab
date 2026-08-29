@@ -37,6 +37,9 @@ Official website: [entropylab.online](https://entropylab.online)
   check fails, the page is replaced with a failure report listing the failed
   checks, because wallet output from a broken host cannot be trusted.
 - Produces recovery information that can be saved or printed for offline use.
+- Includes a presentation mode that temporarily obscures and disables visible
+  secret-bearing panels while the screen is shared. This is a visual safeguard,
+  not a substitute for clearing the session or using an air-gapped computer.
 - Exports a Bitcoin Core `wallet.dat` (SQLite descriptor wallet) with every
   derived output descriptor already imported — receive and change for each
   script type, active and ready for address generation. The default download
@@ -167,6 +170,7 @@ To remove generated files, run `npm run clean`.
 │       ├── online.js       Hosted-site behavior and header version label
 │       ├── network-check.js Network adapter detection and warning
 │       ├── browser-check.js Startup browser sanity checks and kill-screen
+│       ├── ui-shell.js      Presentation mode, safety summary, and UI feedback
 │       ├── enhanced-inputs.js
 │       └── repeat-inputs.js
 ├── entropylab.html         Compiled application (generated, CI-committed)

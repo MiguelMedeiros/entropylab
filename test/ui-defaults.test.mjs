@@ -25,10 +25,12 @@ const appWhitespace = transformSync(appSource, {
 }).code;
 const css = read("src/css/styles.css");
 const online = read("src/js/online.js");
+const uiShell = read("src/js/ui-shell.js");
+const build = read("scripts/build.mjs");
 
 test("top status banner omits the entropy RNG message", () => {
   assert.doesNotMatch(`${template}\n${app}`, /No entropy RNG/);
-  assert.match(template, /<div class="kicker">Run Offline · Bring your own entropy<\/div>/);
+  assert.match(template, /<div class="kicker"><span aria-hidden="true"><\/span> From entropy to keys<\/div>/);
 });
 
 test("optional BIP39 passphrase placeholders explain that blank means none", () => {
@@ -39,11 +41,12 @@ test("optional BIP39 passphrase placeholders explain that blank means none", () 
   }
 });
 
-test("every enabled button uses orange and black momentary press feedback", () => {
+test("every enabled button uses shared momentary press feedback", () => {
   assert.match(css, /button:not\(:disabled\):active \{[\s\S]*?background: var\(--selection-accent\) !important;[\s\S]*?color: var\(--selection-fg\) !important;[\s\S]*?border-color: var\(--selection-accent\) !important;/);
   assert.match(css, /button:not\(:disabled\):active \* \{ color: inherit !important; \}/);
-  assert.equal(/--selection-accent: #ff9900;/.test(css), true);
-  assert.equal(/--selection-fg: #000000;/.test(css), true);
+  const workbenchLayer = css.slice(css.indexOf("/* Entropy-inspired workbench layer."));
+  assert.match(workbenchLayer, /--selection-accent: #eee9df;/);
+  assert.match(workbenchLayer, /--selection-fg: #151915;/);
 });
 
 test("all wallet network selectors enable and default to mainnet", () => {
@@ -636,11 +639,10 @@ test("the beta notice sits at the top of the page as a banner", () => {
       live.indexOf("<strong>Beta software:") < live.indexOf('class="kicker"'),
       "the beta banner must precede the pitch card",
     );
-    // The closing footer disclaimer is gone; the only other .beta-warning is
-    // the no-JS notice in the static template.
-    assert.doesNotMatch(live, /site-footer|fine-print/);
+    // The only other .beta-warning is the no-JS notice in the static template.
+    assert.doesNotMatch(live, /fine-print/);
   }
-  assert.doesNotMatch(css, /\.site-footer|\.fine-print/);
+  assert.doesNotMatch(css, /\.fine-print/);
 });
 
 test("the beta disclaimer gates the page as a modal until accepted", () => {
@@ -731,7 +733,7 @@ test("the site header is fixed, carries the logo, and holds the version, downloa
     // The wrapper opens on the beta banner; the static template follows with
     // a no-JS notice the runtime page has no need of. Both then carry the
     // conditional warnings, which start hidden.
-    assert.match(live, /<div class="wrap">\s*<aside class="beta-warning no-print" role="alert">[\s\S]*?<\/aside>\s*(?:<noscript>[\s\S]*?<\/noscript>\s*)?(?:<aside[^>]*online-warning[\s\S]*?<\/aside>\s*)*<section class="card">/);
+    assert.match(live, /<div class="wrap">\s*<aside class="beta-warning no-print" role="alert">[\s\S]*?<\/aside>\s*(?:<noscript>[\s\S]*?<\/noscript>\s*)?(?:<aside[^>]*online-warning[\s\S]*?<\/aside>\s*)*<section class="(?:card|hero)"/);
     assert.doesNotMatch(markup.slice(wrapper), /<header>|download-controls/);
   }
   assert.doesNotMatch(css, /^header (\{|h1)/m);
@@ -790,19 +792,13 @@ test("the seam into the tool is wider than the page's other major seams", () => 
   }
 });
 
-test("the marketing card states its pitch as a list rather than a paragraph", () => {
-  for (const markup of [template, app]) {
-    const list = markup.match(/<ul class="pitch-list muted">[\s\S]*?<\/ul>/)?.[0];
-    assert.ok(list, "the pitch list is missing");
-    assert.equal((list.match(/<li>/g) || []).length, 4);
-    assert.match(list, /<li>Save this air-gapped bitcoin calculator to a removable drive/);
-    assert.match(list, /<li>Keep your private keys offline\.<\/li>/);
-    // The prose it replaced is gone, not merely hidden.
-    assert.doesNotMatch(markup, /A signing device is only required when you spend/);
-  }
-  // The list stands in for a paragraph, so it carries the space a paragraph
-  // would have above it and leaves the card's padding to close it out.
-  assert.match(css, /\.pitch-list \{ display: grid; gap: 7px; margin: var\(--space-component\) 0 0; padding-left: 20px; \}/);
+test("the canonical hero explains the primary task before the workbench", () => {
+  assert.match(template, /<section class="hero" aria-labelledby="page-title">/);
+  assert.match(template, /<h1 id="page-title">See entropy become a Bitcoin wallet\.<\/h1>/);
+  assert.match(template, /Bring dice rolls, cards, a seed phrase, or a private key/);
+  assert.ok(template.indexOf('class="hero"') < template.indexOf('id="workspace"'));
+  assert.match(css, /\.hero \{[\s\S]*?grid-template-columns:/);
+  assert.match(css, /\.hero h1 \{[\s\S]*?font-size: clamp\(3rem, 6\.2vw, 6\.2rem\)/);
 });
 
 test("the favicon ships inside the document instead of the assets directory", () => {
@@ -904,4 +900,59 @@ test("card suit glyphs have explicit local symbol-font fallbacks (issue #104)", 
   // Fonts are local system fonts only: no webfont may ever be downloaded.
   assert.doesNotMatch(css, /@font-face|\.woff2?|fonts\.googleapis|fonts\.gstatic/);
   assert.doesNotMatch(template, /@font-face|\.woff2?|fonts\.googleapis|fonts\.gstatic/);
+});
+
+test("production keeps the canonical workbench shell", () => {
+  assert.match(template, /id="btc-calc"[^>]*data-entropylab-shell="canonical"/);
+  assert.match(template, /id="workspace" role="group" aria-label="Workspace"><\/div>/);
+  assert.match(appSource, /if \(!ec\.hasAttribute\("data-entropylab-shell"\)\) ec\.innerHTML = `/);
+  assert.match(template, /\/\*@@JS_UI_SHELL@@\*\//);
+  assert.match(build, /const jsUiShell = read\("js\/ui-shell\.js"\)/);
+  assert.match(build, /\.replace\("\/\*@@JS_UI_SHELL@@\*\/", \(\) => jsUiShell\)/);
+});
+
+test("presentation mode, safety review, and destructive confirmation remain accessible", () => {
+  assert.match(template, /id="privacy-toggle"[^>]*aria-label="Enable presentation mode"[^>]*aria-pressed="false"/);
+  assert.match(uiShell, /element\.inert = enabled/);
+  assert.match(uiShell, /event\.key === "Escape"/);
+  assert.match(uiShell, /className = "safety-center no-print"/);
+  assert.match(uiShell, /#delete-key, #delete-msig/);
+  assert.match(uiShell, /dialog\.showModal\(\)/);
+  assert.match(css, /\.privacy-mode :is\(/);
+  assert.match(css, /\.confirm-dialog::backdrop/);
+});
+
+test("long workflows expose readiness and dock actions only after engagement", () => {
+  assert.match(template, /id="derive-readiness" role="status"/);
+  assert.match(appSource, /Input valid · ready to derive/);
+  assert.match(uiShell, /const syncDockedActions/);
+  assert.match(uiShell, /className = "action-dock-sentinel"/);
+  assert.match(uiShell, /actionSentinels\.get\(row\)\.getBoundingClientRect\(\)\.top/);
+  assert.match(uiShell, /isInsideWorkflow && actionIsStillBelowViewport/);
+  assert.match(css, /\.current-item-actions\.is-docked, \.psbt-actions\.is-docked \{ position: sticky; bottom: 12px;/);
+  assert.doesNotMatch(css, /\.current-item-actions, \.psbt-actions \{[^}]*position: sticky/s);
+});
+
+test("workbench motion is purposeful and optional", () => {
+  for (const keyframe of ["shell-rise", "panel-enter", "tab-select", "dialog-enter", "status-pulse"]) {
+    assert.match(css, new RegExp(`@keyframes ${keyframe}`));
+  }
+  assert.match(css, /#calc-card:not\(\[hidden\]\), #msig-card:not\(\[hidden\]\), #psbt-card:not\(\[hidden\]\), #out > \* \{ animation: panel-enter/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{[\s\S]*animation-duration: \.01ms !important;[\s\S]*animation-iteration-count: 1 !important;/);
+});
+
+test("workbench accent pairs meet WCAG AA contrast", () => {
+  const luminance = (hex) => {
+    const channels = hex.slice(1).match(/../g).map((value) => Number.parseInt(value, 16) / 255)
+      .map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+  };
+  const contrast = (left, right) => {
+    const values = [luminance(left), luminance(right)].sort((a, b) => b - a);
+    return (values[0] + 0.05) / (values[1] + 0.05);
+  };
+  assert.ok(contrast("#b04c28", "#f3efe5") >= 4.5);
+  assert.ok(contrast("#ffffff", "#b04c28") >= 4.5);
+  assert.ok(contrast("#d87851", "#10130f") >= 4.5);
+  assert.ok(contrast("#10130f", "#d87851") >= 4.5);
 });

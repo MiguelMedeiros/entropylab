@@ -63,6 +63,7 @@ const jsBrowserCheck = read("js/browser-check.js");
 const jsLifeHash = read("js/lifehash.js");
 const jsEnhanced = read("js/enhanced-inputs.js");
 const jsRepeat = read("js/repeat-inputs.js");
+const jsUiShell = read("js/ui-shell.js");
 
 let html = template
   .replace("/*@@FAVICON@@*/", () => favicon)
@@ -76,6 +77,7 @@ let html = template
   .replace("/*@@JS_LIFEHASH@@*/", () => jsLifeHash)
   .replace("/*@@JS_ENHANCED@@*/", () => jsEnhanced)
   .replace("/*@@JS_REPEAT@@*/", () => jsRepeat)
+  .replace("/*@@JS_UI_SHELL@@*/", () => jsUiShell)
   .split("{{VERSION}}").join(version);
 
 for (const leftover of html.match(/\/\*@@|{{VERSION}}/g) || []) {

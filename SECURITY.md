@@ -38,6 +38,9 @@ material. Its security posture rests on the following model:
 - Wallet security depends on the quality and secrecy of the entropy, seed
   phrase, passphrase, or private key supplied by the user, and on the
   integrity of the machine it runs on.
+- Presentation mode only obscures and disables visible secret-bearing panels
+  during screen sharing. It does not erase values from memory, protect against
+  compromised software, or make an internet-connected computer safe.
 - Low-entropy dice and card transcripts are accepted intentionally so the
   calculator can be used for deterministic tests, demonstrations, and
   recovery experiments. EntropyLab does not claim that hashing a short input

@@ -368,7 +368,7 @@ function an(e, t = "#111111", r = "#ffffff") {
 if (globalThis.__entropyLabTest) globalThis.__entropyLabCrypto = { entropyToMnemonic: (hex) => _n(M.decode(hex)), mnemonicToEntropy: (mnemonic) => M.encode(Er(mnemonic, Ae)), mnemonicToSeed: (mnemonic, passphrase) => M.encode(wi(mnemonic, passphrase)), validateMnemonic: (mnemonic) => Mt(mnemonic).ok, masterXprv: (mnemonic, passphrase) => Gt.fromMasterSeed(wi(mnemonic, passphrase)).privateExtendedKey, privateKeyInputIsValid: () => hodlPrivateKeyInputIsValid(), computeTargetLastWords: (words, targetWords) => hodlComputeTargetLastWords(words, targetWords), clearLastWordCache: () => hodlLastWordCache.clear(), validateTargetMnemonic: (value, targetWords) => hodlValidateTargetMnemonic(value, targetWords), bruteTargetLastWords: (value) => Tr(value) };
 var ec = document.getElementById("btc-calc");
 if (!ec) throw new Error("#app missing");
-ec.innerHTML = `
+if (!ec.hasAttribute("data-entropylab-shell")) ec.innerHTML = `
   <div class="site-header no-print">
     <div class="site-header-inner">
       <span class="site-logo" aria-hidden="true"></span>
@@ -488,6 +488,7 @@ ec.innerHTML = `
         <button class="btn primary" id="go" disabled aria-disabled="true">Derive Wallet</button>
         <div class="derive-progress" id="derive-progress" role="progressbar" aria-label="Wallet derivation progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0% complete" hidden><span class="derive-progress-track"><span class="derive-progress-bar"></span></span><span class="derive-progress-label">0%</span></div>
         <button class="btn clear-current-action" id="wipe" type="button" disabled aria-disabled="true">Clear Current Key</button>
+        <span class="action-readiness" id="derive-readiness" role="status">Complete a valid source input to derive.</span>
       </div>
       <p class="err" id="error"></p>
     </section>
@@ -617,6 +618,7 @@ ec.innerHTML = `
 `;
 if (/^(www\.)?entropylab\.online$/i.test(location.hostname)) document.getElementById("online-warning")?.removeAttribute("hidden");
 var hodlKeyModes = ["dice", "cards", "hex", "seed", "key"], hodlCardRanks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K"], hodlDirectCardRanks = ["A", "2", "3", "4", "5", "6", "7", "8"], hodlCardSuits = [{ code: "S", symbol: "\u2660", label: "Spades", red: false }, { code: "H", symbol: "\u2665", label: "Hearts", red: true }, { code: "C", symbol: "\u2663", label: "Clubs", red: false }, { code: "D", symbol: "\u2666", label: "Diamonds", red: true }], hodlCardSuit = "", hodlCardRank = "", hodlCardMethod = "hashed", hodlSeedMethod = "words", hodlSeedZeroIndexed = false, hodlCardColemanSymbols = false, Ne = "dice", ge = "coldcard", Pt = 24, hodlEntropyFormat = "hex", hodlDiceCoinPositions = [], ft = "", re = null, Ge = false, hodlWalletDatBirthday = "genesis", Zs = W("#modes"), at = W("#form"), dr = W("#out");
+Zs.innerHTML = "";
 hodlKeyModes.forEach((e) => {
   let t = document.createElement("button"), active = e === Ne;
   t.type = "button";
@@ -5210,6 +5212,12 @@ function hodlSyncDeriveButton() {
   button.disabled = !hodlCanDeriveCurrentKey();
   button.title = "";
   button.setAttribute("aria-disabled", String(button.disabled));
+  button.title = button.disabled ? "Complete a valid source input to derive the wallet." : "Ready to derive wallet data.";
+  let readiness = document.getElementById("derive-readiness");
+  if (readiness) {
+    readiness.textContent = button.disabled ? "Complete a valid source input to derive." : "Input valid · ready to derive";
+    readiness.classList.toggle("is-ready", !button.disabled);
+  }
 }
 var hodlMasterFingerprintTimer = 0, hodlMasterFingerprintRevision = 0;
 function hodlFingerprintMnemonic() {
